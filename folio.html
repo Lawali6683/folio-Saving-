@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Folio - Health Worker Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--primary:#0a6e5e;--primary-dark:#064d41;--primary-light:#1aa18b;
+--secondary:#f4a261;--accent:#e76f51;
+--dark:#1a1a2e;--text:#2d3436;--text-light:#636e72;
+--bg:#f4f7f6;--white:#ffffff;
+--gradient:linear-gradient(135deg,#0a6e5e 0%,#1aa18b 50%,#48c6a0 100%);
+--shadow:0 20px 60px rgba(10,110,94,0.12);--radius:20px;--radius-sm:12px;
+--transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
+.container{max-width:560px;margin:0 auto;padding:0 16px}
+
+.login-screen{position:fixed;inset:0;z-index:9999;background:var(--gradient);display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.login-screen.hide{opacity:0;pointer-events:none;transform:scale(1.1)}
+.login-card{background:var(--white);border-radius:var(--radius);padding:40px 32px;width:400px;max-width:92vw;box-shadow:0 40px 80px rgba(0,0,0,0.2);animation:fadeUp 0.6s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .icon{width:64px;height:64px;background:var(--gradient);border-radius:18px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:1.8rem;font-weight:900;margin:0 auto 12px}
+.login-logo h2{font-size:1.4rem;font-weight:800;color:var(--dark)}
+.login-logo p{font-size:0.85rem;color:var(--text-light)}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-weight:600;font-size:0.85rem;color:var(--text);margin-bottom:6px}
+.form-group .input-wrap{position:relative}
+.form-group .input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1rem}
+.form-group input{width:100%;padding:14px 14px 14px 44px;border:2px solid rgba(0,0,0,0.06);border-radius:var(--radius-sm);font-size:0.95rem;outline:none;transition:var(--transition);font-family:inherit;background:var(--bg)}
+.form-group input:focus{border-color:var(--primary);background:var(--white);box-shadow:0 0 0 4px rgba(10,110,94,0.08)}
+.form-group input.error{border-color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;border-radius:var(--radius-sm);font-weight:700;font-size:1rem;text-decoration:none;transition:var(--transition);cursor:pointer;border:none}
+.btn-primary{background:var(--gradient);color:var(--white);box-shadow:0 8px 30px rgba(10,110,94,0.25)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(10,110,94,0.35)}
+.btn-outline{background:transparent;color:var(--primary);border:2px solid var(--primary);width:auto;padding:12px 24px}
+.btn-outline:hover{background:var(--primary);color:var(--white)}
+.login-error{display:none;background:rgba(231,111,81,0.08);color:var(--accent);padding:12px 16px;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:500;margin-bottom:16px;text-align:center}
+
+.app-header{background:var(--gradient);padding:12px 0;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(10,110,94,0.15)}
+.app-header .header-inner{display:flex;align-items:center;justify-content:space-between}
+.app-header .logo-small{display:flex;align-items:center;gap:8px;color:var(--white);font-weight:800;font-size:1rem;text-decoration:none}
+.app-header .logo-small .icon{width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem}
+.app-header .header-actions{display:flex;gap:6px}
+.app-header .header-actions a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 12px;border-radius:100px;background:rgba(255,255,255,0.1);transition:var(--transition);display:flex;align-items:center;gap:4px}
+.app-header .header-actions a:hover{background:rgba(255,255,255,0.2)}
+
+.main-content{padding:20px 0 100px}
+
+.portal-hero{text-align:center;padding:16px 0 24px}
+.portal-hero .shield-icon{width:80px;height:80px;background:rgba(10,110,94,0.06);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:2.2rem;color:var(--primary)}
+.portal-hero h2{font-size:1.4rem;font-weight:800;color:var(--dark)}
+.portal-hero p{font-size:0.85rem;color:var(--text-light)}
+
+.scanner-card{background:var(--white);border-radius:var(--radius);padding:32px 24px;text-align:center;box-shadow:var(--shadow);margin-bottom:24px;position:relative;overflow:hidden}
+.scanner-card::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230a6e5e' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");z-index:0}
+.scanner-card > *{position:relative;z-index:1}
+.scanner-card .scan-title{font-size:1.1rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:8px}
+.scanner-card .scan-title i{color:var(--primary)}
+.scanner-card .scan-sub{font-size:0.82rem;color:var(--text-light);margin-bottom:24px}
+
+.scanner-area{width:200px;height:200px;margin:0 auto 24px;position:relative;cursor:pointer}
+.scanner-ring{width:100%;height:100%;border-radius:50%;border:3px solid rgba(10,110,94,0.1);position:relative;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.scanner-ring.scanning{border-color:var(--primary);box-shadow:0 0 0 8px rgba(10,110,94,0.06),0 0 0 16px rgba(10,110,94,0.03)}
+.scanner-ring.found{border-color:#00b894;box-shadow:0 0 0 8px rgba(0,184,148,0.08),0 0 0 16px rgba(0,184,148,0.04)}
+.scanner-ring-inner{width:82%;height:82%;border-radius:50%;border:2px dashed rgba(10,110,94,0.15);display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;overflow:hidden}
+.scan-line{position:absolute;left:8%;right:8%;height:3px;background:var(--gradient);border-radius:4px;animation:scanMove 1.8s ease-in-out infinite;opacity:0.7}
+@keyframes scanMove{0%{top:18%}50%{top:78%}100%{top:18%}}
+.scanner-ring-inner i{font-size:2.5rem;color:var(--primary);z-index:1;transition:var(--transition)}
+.scanner-ring.found .scanner-ring-inner i{color:#00b894}
+.scanner-ring-inner span{font-size:0.72rem;color:var(--text-light);margin-top:6px;z-index:1;font-weight:500}
+.scan-status{font-size:0.85rem;color:var(--text-light);min-height:22px;font-weight:500;transition:var(--transition)}
+.scan-status.scanning{color:var(--primary)}
+.scan-status.found{color:#00b894;font-weight:700}
+.scan-status.not-found{color:var(--accent);font-weight:600}
+
+.section-card{background:var(--white);border-radius:var(--radius);padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);margin-bottom:20px;display:none}
+.section-card.show{display:block;animation:fadeIn 0.5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.child-profile{display:flex;gap:16px;align-items:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(0,0,0,0.04)}
+.child-profile .child-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--bg);flex-shrink:0;border:3px solid rgba(10,110,94,0.1)}
+.child-profile .child-info h3{font-size:1.15rem;font-weight:700;color:var(--dark)}
+.child-profile .child-info .id-badge{display:inline-block;background:rgba(10,110,94,0.06);color:var(--primary);padding:2px 10px;border-radius:100px;font-size:0.72rem;font-weight:600;margin-top:4px}
+.child-profile .child-info p{font-size:0.8rem;color:var(--text-light);margin-top:2px}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-item{padding:12px 14px;background:var(--bg);border-radius:var(--radius-sm)}
+.info-item .label{font-size:0.72rem;color:var(--text-light);font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.info-item .value{font-size:0.92rem;font-weight:600;color:var(--text);margin-top:2px}
+
+.vaccine-timeline{margin-top:20px}
+.vaccine-timeline h4{font-size:0.95rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.vaccine-timeline h4 i{color:var(--primary)}
+.vaccine-entry{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:10px;border-left:4px solid var(--primary);transition:var(--transition)}
+.vaccine-entry:last-child{margin-bottom:0}
+.vaccine-entry .entry-icon{width:36px;height:36px;background:var(--gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:0.85rem;flex-shrink:0}
+.vaccine-entry .entry-info{flex:1}
+.vaccine-entry .entry-info .v-name{font-size:0.9rem;font-weight:600}
+.vaccine-entry .entry-info .v-date{font-size:0.78rem;color:var(--text-light)}
+.vaccine-entry .entry-badge{background:rgba(10,110,94,0.06);color:var(--primary);padding:4px 10px;border-radius:100px;font-size:0.7rem;font-weight:600;white-space:nowrap}
+.vaccine-entry .entry-badge.done{background:rgba(0,184,148,0.1);color:#00b894}
+.vaccine-entry .entry-badge.pending{background:rgba(244,162,97,0.1);color:var(--secondary)}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.stat-box{text-align:center;padding:14px;background:var(--bg);border-radius:var(--radius-sm)}
+.stat-box .num{font-size:1.3rem;font-weight:800;color:var(--primary)}
+.stat-box .label{font-size:0.7rem;color:var(--text-light);margin-top:2px}
+
+.complete-section{margin-top:20px;padding-top:20px;border-top:1px solid rgba(0,0,0,0.04)}
+.complete-section .complete-label{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.complete-section .complete-label i{color:var(--primary)}
+.complete-actions{display:flex;gap:10px}
+.complete-actions .btn{flex:1;padding:14px}
+
+.empty-state{text-align:center;padding:60px 20px;display:none}
+.empty-state.show{display:block;animation:fadeIn 0.5s ease}
+.empty-state .icon{font-size:3.5rem;color:rgba(10,110,94,0.15);margin-bottom:16px}
+.empty-state h3{font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:8px}
+.empty-state p{font-size:0.88rem;color:var(--text-light);margin-bottom:20px;max-width:320px;margin-left:auto;margin-right:auto}
+.empty-state .btn{width:auto;display:inline-flex;padding:14px 32px}
+
+.offline-section{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.04);margin-bottom:20px;border:2px dashed rgba(244,162,97,0.3)}
+.offline-section h4{font-size:0.95rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--secondary)}
+.offline-section h4 i{color:var(--secondary)}
+.offline-actions{display:flex;gap:10px;flex-wrap:wrap}
+.offline-actions .btn{flex:1;min-width:120px;padding:12px;font-size:0.85rem}
+
+@media(max-width:480px){
+.info-grid{grid-template-columns:1fr}
+.stats-row{grid-template-columns:1fr 1fr}
+.complete-actions{flex-direction:column}
+.offline-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+<div class="login-card">
+<div class="login-logo">
+<div class="icon">F</div>
+<h2>Folio: Saving & Protecting Lives</h2>
+<p>Health Worker Portal - Secure Access</p>
+</div>
+<div class="login-error" id="loginError">
+<i class="fas fa-exclamation-circle"></i> Invalid email or password. Please try again.
+</div>
+<div class="form-group">
+<label>Email Address</label>
+<div class="input-wrap">
+<i class="fas fa-envelope"></i>
+<input type="email" id="loginEmail" value="ubaidaaliyu@gmail.com" placeholder="Enter email">
+</div>
+</div>
+<div class="form-group">
+<label>Password</label>
+<div class="input-wrap">
+<i class="fas fa-lock"></i>
+<input type="password" id="loginPassword" value="ubaida@77" placeholder="Enter password">
+</div>
+</div>
+<button class="btn btn-primary" id="loginBtn">
+<i class="fas fa-arrow-right"></i> Sign In
+</button>
+</div>
+</div>
+
+<div class="app-header">
+<div class="container header-inner">
+<a href="#" class="logo-small">
+<div class="icon">F</div>
+Folio Worker Portal
+</a>
+<div class="header-actions">
+<a href="admin.html"><i class="fas fa-database"></i> Admin</a>
+<a href="file.html"><i class="fas fa-plus-circle"></i> New Child</a>
+</div>
+</div>
+</div>
+
+<div class="container main-content">
+
+<div class="portal-hero">
+<div class="shield-icon"><i class="fas fa-shield-heart"></i></div>
+<h2>Verify & Track Vaccination Records</h2>
+<p>Scan child's fingerprint to retrieve their complete health file. Every record is securely stored.</p>
+</div>
+
+<div class="scanner-card">
+<div class="scan-title"><i class="fas fa-fingerprint"></i> Fingerprint Scanner</div>
+<div class="scan-sub">Tap the scanner below or place finger on connected scanner device</div>
+<div class="scanner-area" id="scannerClickArea">
+<div class="scanner-ring" id="scannerRing">
+<div class="scanner-ring-inner">
+<div class="scan-line"></div>
+<i class="fas fa-fingerprint" id="fingerIcon"></i>
+<span>Tap to Scan</span>
+</div>
+</div>
+</div>
+<div class="scan-status" id="scanStatus">Ready to scan fingerprint</div>
+</div>
+
+<div class="empty-state show" id="emptyState">
+<div class="icon"><i class="fas fa-inbox"></i></div>
+<h3>No Child Record Found</h3>
+<p>No children have been registered yet. Start by creating a new child health record.</p>
+<a href="file.html" class="btn btn-primary"><i class="fas fa-plus"></i> Register First Child</a>
+</div>
+
+<div id="noMatchState" class="empty-state">
+<div class="icon"><i class="fas fa-search-minus"></i></div>
+<h3>No Match Found</h3>
+<p>This fingerprint does not match any registered child. Please try again or register a new child.</p>
+<button class="btn btn-outline" id="retryScanBtn"><i class="fas fa-redo"></i> Scan Again</button>
+</div>
+
+<div class="section-card" id="childFoundCard">
+<div class="child-profile">
+<img class="child-avatar" id="childAvatar" src="" alt="Child photo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2272%22 viewBox=%220 0 72 72%22%3E%3Crect fill=%22%23e8f4f1%22 width=%2272%22 height=%2272%22 rx=%2236%22/%3E%3Ctext x=%2236%22 y=%2244%22 text-anchor=%22middle%22 fill=%22%230a6e5e%22 font-size=%2228%22%3E%F0%9F%91%B6%3C/text%3E%3C/svg%3E'">
+<div class="child-info">
+<h3 id="childDisplayName">Child Name</h3>
+<span class="id-badge" id="childDisplayId">FOL-2026-0001</span>
+<p id="childDisplayParents">Mother: Aisha Musa | Father: 080XXXXXXX</p>
+</div>
+</div>
+
+<div class="info-grid">
+<div class="info-item"><div class="label">Gender</div><div class="value" id="childDisplayGender">-</div></div>
+<div class="info-item"><div class="label">Date of Birth</div><div class="value" id="childDisplayDob">-</div></div>
+<div class="info-item"><div class="label">LGA / Ward</div><div class="value" id="childDisplayLocation">-</div></div>
+<div class="info-item"><div class="label">Mother's Phone</div><div class="value" id="childDisplayPhone">-</div></div>
+</div>
+
+<div class="stats-row">
+<div class="stat-box"><div class="num" id="vaccineCount">0</div><div class="label">Vaccines Given</div></div>
+<div class="stat-box"><div class="num" id="daysSinceFirst">0</div><div class="label">Days Since 1st</div></div>
+<div class="stat-box"><div class="num" id="daysSinceLast">0</div><div class="label">Days Since Last</div></div>
+</div>
+
+<div class="vaccine-timeline" id="vaccineTimeline">
+<h4><i class="fas fa-syringe"></i> Vaccination Record</h4>
+<div id="vaccineList"></div>
+</div>
+
+<div class="complete-section" id="completeSection">
+<div class="complete-label"><i class="fas fa-check-circle"></i> Mark Vaccination as Complete</div>
+<div class="complete-actions">
+<button class="btn btn-primary" id="markVaccineBtn"><i class="fas fa-syringe"></i> Give Vaccine Today</button>
+</div>
+</div>
+</div>
+
+<div class="offline-section" id="offlineSection">
+<h4><i class="fas fa-cloud-upload-alt"></i> Offline Data Backup</h4>
+<p style="font-size:0.82rem;color:var(--text-light);margin-bottom:14px">Backup all records to a file or upload when internet is available.</p>
+<div class="offline-actions">
+<button class="btn btn-outline" id="exportDataBtn"><i class="fas fa-download"></i> Export Data</button>
+<button class="btn btn-outline" id="importDataBtn"><i class="fas fa-upload"></i> Import Data</button>
+<button class="btn btn-outline" id="syncDataBtn"><i class="fas fa-sync"></i> Sync Online</button>
+</div>
+</div>
+
+</div>
+
+<div class="success-overlay" id="vaccineSuccessOverlay" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center">
+<div style="background:var(--white);border-radius:var(--radius);padding:48px 32px;text-align:center;max-width:380px;width:92vw;animation:popIn 0.5s ease">
+<div style="width:80px;height:80px;background:rgba(0,184,148,0.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+<i class="fas fa-check-circle" style="font-size:2.5rem;color:#00b894"></i>
+</div>
+<h2 style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:6px">Vaccination Recorded!</h2>
+<p style="font-size:0.88rem;color:var(--text-light);margin-bottom:4px" id="vaccineSuccessName">Child Name</p>
+<p style="font-size:0.82rem;color:var(--text-light);margin-bottom:16px" id="vaccineSuccessDate">Date: Today</p>
+<button class="btn btn-primary" id="vaccineSuccessOk"><i class="fas fa-check"></i> Done</button>
+</div>
+</div>
+
+<input type="file" id="importFileInput" accept=".json" style="display:none">
+
+<script>
+var VALID_EMAIL = 'ubaidaaliyu@gmail.com';
+var VALID_PASS = 'ubaida@77';
+var currentChildId = null;
+
+document.getElementById('loginEmail').value = VALID_EMAIL;
+document.getElementById('loginPassword').value = VALID_PASS;
+
+document.getElementById('loginBtn').addEventListener('click', function() {
+var email = document.getElementById('loginEmail').value.trim();
+var pass = document.getElementById('loginPassword').value.trim();
+var error = document.getElementById('loginError');
+if (email === VALID_EMAIL && pass === VALID_PASS) {
+document.getElementById('loginScreen').classList.add('hide');
+error.style.display = 'none';
+} else {
+error.style.display = 'block';
+document.getElementById('loginEmail').classList.add('error');
+document.getElementById('loginPassword').classList.add('error');
+setTimeout(function() {
+document.getElementById('loginEmail').classList.remove('error');
+document.getElementById('loginPassword').classList.remove('error');
+}, 2000);
+}
+});
+
+document.getElementById('loginEmail').addEventListener('keydown', function(e) {
+if (e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+if (e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+function getChildren() {
+return JSON.parse(localStorage.getItem('folio_children') || '[]');
+}
+
+function saveChildren(children) {
+localStorage.setItem('folio_children', JSON.stringify(children));
+}
+
+function checkHasChildren() {
+var children = getChildren();
+if (children.length === 0) {
+document.getElementById('emptyState').classList.add('show');
+document.getElementById('childFoundCard').classList.remove('show');
+document.getElementById('noMatchState').classList.remove('show');
+} else {
+document.getElementById('emptyState').classList.remove('show');
+}
+}
+
+checkHasChildren();
+
+function simulateScan() {
+var ring = document.getElementById('scannerRing');
+var status = document.getElementById('scanStatus');
+var icon = document.getElementById('fingerIcon');
+ring.className = 'scanner-ring scanning';
+status.textContent = 'Scanning fingerprint...';
+status.className = 'scan-status scanning';
+icon.style.color = '#0a6e5e';
+setTimeout(function() {
+var children = getChildren();
+if (children.length === 0) {
+ring.className = 'scanner-ring';
+status.textContent = 'No children registered yet. Please register a child first.';
+status.className = 'scan-status not-found';
+document.getElementById('emptyState').classList.add('show');
+document.getElementById('noMatchState').classList.remove('show');
+document.getElementById('childFoundCard').classList.remove('show');
+return;
+}
+var randomIndex = Math.floor(Math.random() * children.length);
+var child = children[randomIndex];
+currentChildId = child.id;
+ring.className = 'scanner-ring found';
+status.textContent = 'Match found! ' + child.name;
+status.className = 'scan-status found';
+icon.style.color = '#00b894';
+document.getElementById('emptyState').classList.remove('show');
+document.getElementById('noMatchState').classList.remove('show');
+displayChildProfile(child);
+}, 2000);
+}
+
+document.getElementById('scannerClickArea').addEventListener('click', simulateScan);
+
+document.getElementById('retryScanBtn').addEventListener('click', function() {
+document.getElementById('noMatchState').classList.remove('show');
+var ring = document.getElementById('scannerRing');
+ring.className = 'scanner-ring';
+document.getElementById('scanStatus').textContent = 'Ready to scan fingerprint';
+document.getElementById('scanStatus').className = 'scan-status';
+document.getElementById('fingerIcon').style.color = '';
+});
+
+function displayChildProfile(child) {
+document.getElementById('childDisplayName').textContent = child.name;
+document.getElementById('childDisplayId').textContent = child.id;
+document.getElementById('childDisplayParents').textContent = 'Mother: ' + (child.motherName || 'N/A') + ' | Phone: ' + (child.motherPhone || 'N/A');
+document.getElementById('childDisplayGender').textContent = child.gender || '-';
+document.getElementById('childDisplayDob').textContent = child.dob ? new Date(child.dob).toLocaleDateString() : '-';
+document.getElementById('childDisplayLocation').textContent = (child.lga || '-') + ' / ' + (child.ward || '-');
+document.getElementById('childDisplayPhone').textContent = child.motherPhone || '-';
+var avatar = document.getElementById('childAvatar');
+if (child.photo) { avatar.src = child.photo; } else { avatar.src = ''; }
+var vaccines = child.vaccines || [];
+var vaccineCount = vaccines.length;
+document.getElementById('vaccineCount').textContent = vaccineCount;
+var now = new Date();
+var regDate = new Date(child.registrationDate);
+var daysFirst = Math.floor((now - regDate) / (1000 * 60 * 60 * 24));
+document.getElementById('daysSinceFirst').textContent = daysFirst;
+if (vaccineCount > 0) {
+var lastVaccine = vaccines[vaccineCount - 1];
+var lastDate = new Date(lastVaccine.date);
+var daysLast = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+document.getElementById('daysSinceLast').textContent = daysLast;
+} else {
+document.getElementById('daysSinceLast').textContent = 'N/A';
+}
+var vaccineList = document.getElementById('vaccineList');
+vaccineList.innerHTML = '';
+var vaccineNames = ['BCG (Tuberculosis)', 'Hepatitis B', 'OPV (Polio)', 'Pentavalent (DTP-HepB-Hib)', 'PCV (Pneumonia)', 'Rotavirus', 'Measles-Rubella', 'Yellow Fever'];
+var vaccineSchedule = ['At birth', '6 weeks', '6 weeks', '6 weeks', '6 weeks', '6 weeks', '9 months', '9 months'];
+if (vaccineCount === 0) {
+vaccineList.innerHTML = '<p style="font-size:0.85rem;color:var(--text-light);text-align:center;padding:20px">No vaccines recorded yet. Click "Give Vaccine Today" to start.</p>';
+} else {
+vaccines.forEach(function(v, i) {
+var entry = document.createElement('div');
+entry.className = 'vaccine-entry';
+var scheduleIndex = vaccineNames.indexOf(v.name);
+var badge = scheduleIndex >= 0 ? v.name : 'Vaccine';
+entry.innerHTML = '<div class="entry-icon"><i class="fas fa-syringe"></i></div><div class="entry-info"><div class="v-name">' + (v.name || 'Vaccine') + '</div><div class="v-date">' + new Date(v.date).toLocaleDateString() + ' - ' + (v.notes || 'Administered') + '</div></div><div class="entry-badge done"><i class="fas fa-check"></i> Done</div>';
+vaccineList.appendChild(entry);
+});
+}
+document.getElementById('childFoundCard').classList.add('show');
+}
+
+document.getElementById('markVaccineBtn').addEventListener('click', function() {
+if (!currentChildId) return;
+var children = getChildren();
+var index = children.findIndex(function(c) { return c.id === currentChildId; });
+if (index === -1) return;
+var child = children[index];
+var vaccines = child.vaccines || [];
+var vaccineNames = ['BCG (Tuberculosis)', 'Hepatitis B', 'OPV (Polio)', 'Pentavalent (DTP-HepB-Hib)', 'PCV (Pneumonia)', 'Rotavirus', 'Measles-Rubella', 'Yellow Fever'];
+var nextIndex = vaccines.length;
+var vaccineName = nextIndex < vaccineNames.length ? vaccineNames[nextIndex] : 'Vaccine #' + (nextIndex + 1);
+var today = new Date();
+var vaccineRecord = {
+name: vaccineName,
+date: today.toISOString(),
+notes: 'Given by health worker',
+administeredBy: 'Health Worker'
+};
+vaccines.push(vaccineRecord);
+child.vaccines = vaccines;
+child.vaccinesGiven = vaccines.length;
+child.lastUpdated = today.toISOString();
+children[index] = child;
+saveChildren(children);
+document.getElementById('vaccineSuccessName').textContent = child.name + ' - ' + vaccineName;
+document.getElementById('vaccineSuccessDate').textContent = 'Date: ' + today.toLocaleDateString();
+document.getElementById('vaccineSuccessOverlay').style.display = 'flex';
+displayChildProfile(child);
+});
+
+document.getElementById('vaccineSuccessOk').addEventListener('click', function() {
+document.getElementById('vaccineSuccessOverlay').style.display = 'none';
+var ring = document.getElementById('scannerRing');
+ring.className = 'scanner-ring';
+document.getElementById('scanStatus').textContent = 'Ready to scan fingerprint';
+document.getElementById('scanStatus').className = 'scan-status';
+document.getElementById('fingerIcon').style.color = '';
+document.getElementById('childFoundCard').classList.remove('show');
+});
+
+document.getElementById('exportDataBtn').addEventListener('click', function() {
+var data = {};
+for (var i = 0; i < localStorage.length; i++) {
+var key = localStorage.key(i);
+data[key] = localStorage.getItem(key);
+}
+var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+var url = URL.createObjectURL(blob);
+var a = document.createElement('a');
+a.href = url;
+a.download = 'folio-backup-' + new Date().toISOString().split('T')[0] + '.json';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+});
+
+document.getElementById('importDataBtn').addEventListener('click', function() {
+document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', function(e) {
+var file = e.target.files[0];
+if (!file) return;
+var reader = new FileReader();
+reader.onload = function(ev) {
+try {
+var data = JSON.parse(ev.target.result);
+Object.keys(data).forEach(function(key) {
+localStorage.setItem(key, data[key]);
+});
+alert('Data imported successfully! ' + Object.keys(data).length + ' records loaded.');
+checkHasChildren();
+} catch(err) {
+alert('Error importing data. Please check the file format.');
+}
+};
+reader.readAsText(file);
+e.target.value = '';
+});
+
+document.getElementById('syncDataBtn').addEventListener('click', function() {
+var data = {};
+for (var i = 0; i < localStorage.length; i++) {
+var key = localStorage.key(i);
+data[key] = localStorage.getItem(key);
+}
+fetch('/api/folio/sync', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({data: data, timestamp: new Date().toISOString()})
+}).then(function(res) { return res.json(); }).then(function(resp) {
+alert('Sync completed successfully! Data sent to server.');
+}).catch(function() {
+alert('No internet connection. Data is saved locally. It will sync automatically when online.');
+});
+});
+
+document.querySelector('a[href="file.html"]').addEventListener('click', function(e) {
+e.preventDefault();
+var children = getChildren();
+if (children.length === 0) {
+window.location.href = 'file.html';
+} else {
+window.location.href = 'file.html';
+}
+});
+</script>
+</body>
+</html>

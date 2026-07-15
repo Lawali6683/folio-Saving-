@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Folio - New Child Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--primary:#0a6e5e;--primary-dark:#064d41;--primary-light:#1aa18b;
+--secondary:#f4a261;--accent:#e76f51;
+--dark:#1a1a2e;--text:#2d3436;--text-light:#636e72;
+--bg:#f4f7f6;--white:#ffffff;
+--gradient:linear-gradient(135deg,#0a6e5e 0%,#1aa18b 50%,#48c6a0 100%);
+--shadow:0 20px 60px rgba(10,110,94,0.12);--radius:20px;--radius-sm:12px;
+--transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
+.container{max-width:560px;margin:0 auto;padding:0 16px}
+.app-header{background:var(--gradient);padding:12px 0;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(10,110,94,0.15)}
+.app-header .header-inner{display:flex;align-items:center;justify-content:space-between}
+.app-header .logo-small{display:flex;align-items:center;gap:8px;color:var(--white);font-weight:800;font-size:1rem;text-decoration:none}
+.app-header .logo-small .icon{width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem}
+.app-header .header-actions{display:flex;gap:6px}
+.app-header .header-actions a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 12px;border-radius:100px;background:rgba(255,255,255,0.1);transition:var(--transition);display:flex;align-items:center;gap:4px}
+.app-header .header-actions a:hover{background:rgba(255,255,255,0.2)}
+.main-content{padding:20px 0 100px}
+.hero-child{text-align:center;padding:8px 0 16px}
+.hero-child img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--white);box-shadow:0 10px 30px rgba(10,110,94,0.12);margin-bottom:8px;background:var(--bg)}
+.hero-child h2{font-size:1.25rem;font-weight:800;color:var(--primary)}
+.hero-child p{font-size:0.82rem;color:var(--text-light)}
+.step-indicator{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:20px}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;transition:var(--transition)}
+.step-dot.active{background:var(--gradient);color:var(--white);box-shadow:0 4px 15px rgba(10,110,94,0.2)}
+.step-dot.done{background:var(--primary-light);color:var(--white)}
+.step-dot.pending{background:rgba(0,0,0,0.04);color:var(--text-light)}
+.step-line{width:30px;height:2px;background:rgba(0,0,0,0.06);border-radius:2px}
+.step-line.done{background:var(--primary-light)}
+.section-card{background:var(--white);border-radius:var(--radius);padding:24px 20px;box-shadow:0 4px 20px rgba(0,0,0,0.04);margin-bottom:20px}
+.section-card .card-title{font-size:1.05rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.section-card .card-title i{color:var(--primary);font-size:1rem}
+.section-card .card-sub{font-size:0.8rem;color:var(--text-light);margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full-width{grid-column:1/-1}
+.form-field{margin-bottom:0}
+.form-field label{display:block;font-weight:600;font-size:0.75rem;color:var(--text);margin-bottom:4px}
+.form-field label .req{color:var(--accent)}
+.form-field input,.form-field select{width:100%;padding:11px 12px;border:2px solid rgba(0,0,0,0.06);border-radius:var(--radius-sm);font-size:0.88rem;outline:none;transition:var(--transition);font-family:inherit;background:var(--bg);appearance:none;-webkit-appearance:none}
+.form-field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23636e72' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.form-field input:focus,.form-field select:focus{border-color:var(--primary);background:var(--white);box-shadow:0 0 0 4px rgba(10,110,94,0.08)}
+.form-field input.error,.form-field select.error{border-color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:var(--radius-sm);font-weight:700;font-size:0.92rem;text-decoration:none;transition:var(--transition);cursor:pointer;border:none}
+.btn-primary{background:var(--gradient);color:var(--white);box-shadow:0 8px 30px rgba(10,110,94,0.25)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(10,110,94,0.35)}
+.btn-back{background:rgba(0,0,0,0.04);color:var(--text)}
+.btn-back:hover{background:rgba(0,0,0,0.08)}
+.nav-buttons{display:flex;gap:10px;margin-top:20px}
+.nav-buttons .btn{flex:1}
+.photo-capture{text-align:center}
+.photo-frame{width:160px;height:210px;margin:0 auto 16px;border:3px dashed rgba(10,110,94,0.2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:var(--bg);transition:var(--transition)}
+.photo-frame.has-photo{border-style:solid;border-color:var(--primary)}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:none}
+.photo-frame img.show{display:block}
+.photo-frame .placeholder{text-align:center;color:var(--text-light)}
+.photo-frame .placeholder i{font-size:2rem;margin-bottom:6px;display:block;color:rgba(10,110,94,0.2)}
+.photo-frame .placeholder span{font-size:0.75rem;font-weight:500}
+.photo-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.photo-actions button{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:100px;font-weight:600;font-size:0.85rem;cursor:pointer;transition:var(--transition);border:none}
+.photo-actions .capture-btn{background:var(--gradient);color:var(--white)}
+.photo-actions .capture-btn:hover{transform:translateY(-2px)}
+.photo-actions .skip-btn{background:rgba(0,0,0,0.04);color:var(--text-light)}
+.photo-actions .skip-btn:hover{background:rgba(0,0,0,0.08)}
+.scanner-section{text-align:center}
+.scanner-area{width:180px;height:180px;margin:0 auto 20px;position:relative;cursor:pointer}
+.scanner-ring{width:100%;height:100%;border-radius:50%;border:3px solid rgba(10,110,94,0.1);position:relative;display:flex;align-items:center;justify-content:center}
+.scanner-ring-inner{width:82%;height:82%;border-radius:50%;border:2px dashed rgba(10,110,94,0.15);display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;overflow:hidden}
+.scan-line{position:absolute;left:8%;right:8%;height:3px;background:var(--gradient);border-radius:4px;animation:scanMove 1.8s ease-in-out infinite;opacity:0.6}
+@keyframes scanMove{0%{top:18%}50%{top:78%}100%{top:18%}}
+.scanner-ring-inner i{font-size:2rem;color:var(--primary);z-index:1}
+.scanner-ring-inner span{font-size:0.7rem;color:var(--text-light);margin-top:4px;z-index:1;font-weight:500}
+.scan-status{font-size:0.85rem;color:var(--text-light);min-height:22px;font-weight:500;margin-bottom:16px}
+.scan-status.success{color:var(--primary)}
+.scan-status.error{color:var(--accent)}
+.finger-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:280px;margin:0 auto 16px}
+.finger-box{border:2px dashed rgba(0,0,0,0.06);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:var(--transition);background:var(--bg);cursor:pointer}
+.finger-box.has-finger{border-style:solid;border-color:var(--primary);background:rgba(10,110,94,0.04)}
+.finger-box i{font-size:1.6rem;color:var(--text-light);margin-bottom:4px;display:block}
+.finger-box.has-finger i{color:var(--primary)}
+.finger-box .finger-label{font-size:0.72rem;font-weight:600;color:var(--text-light)}
+.finger-box.has-finger .finger-label{color:var(--primary)}
+.finger-box .finger-check{display:none;color:var(--primary);font-size:0.8rem;margin-top:4px}
+.finger-box.has-finger .finger-check{display:block}
+.app-screen{display:none;padding:0}
+.app-screen.active{display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.success-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
+.success-overlay.show{display:flex}
+.success-card{background:var(--white);border-radius:var(--radius);padding:40px 24px;text-align:center;max-width:360px;width:92vw;animation:popIn 0.5s ease}
+@keyframes popIn{0%{opacity:0;transform:scale(0.8) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.success-card .success-icon{width:72px;height:72px;background:rgba(10,110,94,0.06);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.success-card .success-icon i{font-size:2.2rem;color:var(--primary)}
+.success-card h2{font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:6px}
+.success-card p{font-size:0.85rem;color:var(--text-light);margin-bottom:4px}
+.success-card .child-id{display:inline-block;background:var(--gradient);color:var(--white);padding:6px 16px;border-radius:100px;font-weight:700;font-size:0.8rem;margin:10px 0 16px}
+@media(max-width:480px){
+.form-grid{grid-template-columns:1fr}
+.finger-grid{grid-template-columns:1fr;max-width:200px}
+.photo-frame{width:140px;height:180px}
+.scanner-area{width:160px;height:160px}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+<div class="container header-inner">
+<a href="folio.html" class="logo-small">
+<div class="icon">F</div>
+Folio Worker Portal
+</a>
+<div class="header-actions">
+<a href="folio.html"><i class="fas fa-search"></i> Scan</a>
+<a href="admin.html"><i class="fas fa-database"></i> Admin</a>
+</div>
+</div>
+</div>
+
+<div class="container main-content">
+
+<div class="hero-child">
+<img src="https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTA1L25paDEwMTQ0NzU3OS1pbWFnZS5qcGc.jpg" alt="Child health" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22 viewBox=%220 0 80 80%22%3E%3Crect fill=%22%23e8f4f1%22 width=%2280%22 height=%2280%22 rx=%2240%22/%3E%3Ctext x=%2240%22 y=%2248%22 text-anchor=%22middle%22 fill=%22%230a6e5e%22 font-size=%2230%22%3E%F0%9F%91%B6%3C/text%3E%3C/svg%3E'">
+<h2>Register a New Child</h2>
+<p>Create a secure digital health record for vaccination tracking</p>
+</div>
+
+<div class="step-indicator" id="stepIndicator">
+<div class="step-dot active" data-step="1">1</div>
+<div class="step-line" data-step="1"></div>
+<div class="step-dot pending" data-step="2">2</div>
+<div class="step-line" data-step="2"></div>
+<div class="step-dot pending" data-step="3">3</div>
+</div>
+
+<div class="app-screen active" id="screen1">
+<div class="section-card">
+<div class="card-title"><i class="fas fa-child"></i> Child Information</div>
+<div class="card-sub">Enter the child's details to create a new health record</div>
+<div class="form-grid">
+<div class="full-width form-field">
+<label>Full Name <span class="req">*</span></label>
+<input type="text" id="childName" placeholder="Child's full name">
+</div>
+<div class="form-field">
+<label>Gender <span class="req">*</span></label>
+<select id="childGender"><option value="">Select</option><option>Male</option><option>Female</option></select>
+</div>
+<div class="form-field">
+<label>Date of Birth <span class="req">*</span></label>
+<input type="date" id="childDob">
+</div>
+<div class="full-width form-field">
+<label>Mother's Full Name <span class="req">*</span></label>
+<input type="text" id="motherName" placeholder="Mother's full name">
+</div>
+<div class="form-field">
+<label>Mother's Phone <span class="req">*</span></label>
+<input type="tel" id="motherPhone" placeholder="080 XXX XXX XX">
+</div>
+<div class="form-field">
+<label>Father's Phone</label>
+<input type="tel" id="fatherPhone" placeholder="080 XXX XXX XX">
+</div>
+<div class="form-field">
+<label>Country <span class="req">*</span></label>
+<select id="childCountry"><option value="">Select</option><option>Nigeria</option><option>Ghana</option><option>Cameroon</option><option>Benin</option><option>Niger</option><option>Chad</option><option>Other</option></select>
+</div>
+<div class="form-field">
+<label>State <span class="req">*</span></label>
+<select id="childState"><option value="">Select</option><option>Abia</option><option>Adamawa</option><option>Bauchi</option><option>Borno</option><option>Ebonyi</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Lagos</option><option>Niger</option><option>Plateau</option><option>Sokoto</option><option>Yobe</option><option>Zamfara</option></select>
+</div>
+<div class="form-field">
+<label>LGA <span class="req">*</span></label>
+<input type="text" id="childLga" placeholder="Local Government Area">
+</div>
+<div class="form-field">
+<label>Ward / Unguwa <span class="req">*</span></label>
+<input type="text" id="childWard" placeholder="Ward or neighborhood">
+</div>
+</div>
+<div class="nav-buttons">
+<button class="btn btn-primary" id="step1Next"><i class="fas fa-arrow-right"></i> Next</button>
+</div>
+</div>
+</div>
+
+<div class="app-screen" id="screen2">
+<div class="section-card">
+<div class="card-title"><i class="fas fa-camera"></i> Capture Photo</div>
+<div class="card-sub">Take a clear photo of the child's face</div>
+<div class="photo-capture">
+<div class="photo-frame" id="photoFrame">
+<div class="placeholder" id="photoPlaceholder">
+<i class="fas fa-camera"></i>
+<span>Tap to capture</span>
+</div>
+<img id="photoPreview" alt="Child photo">
+</div>
+<div class="photo-actions">
+<button class="capture-btn" id="capturePhotoBtn"><i class="fas fa-camera"></i> Capture</button>
+<button class="skip-btn" id="skipPhotoBtn"><i class="fas fa-forward"></i> Skip</button>
+</div>
+</div>
+</div>
+<div class="nav-buttons">
+<button class="btn btn-back btn-back-step"><i class="fas fa-arrow-left"></i> Back</button>
+<button class="btn btn-primary" id="step2Next"><i class="fas fa-arrow-right"></i> Next</button>
+</div>
+</div>
+
+<div class="app-screen" id="screen3">
+<div class="section-card">
+<div class="card-title"><i class="fas fa-fingerprint"></i> Fingerprint Registration</div>
+<div class="card-sub">Scan the child's thumbs to create a unique biometric ID</div>
+<div class="scanner-section">
+<div class="finger-grid">
+<div class="finger-box" id="fingerLeft">
+<i class="fas fa-hand-point-up"></i>
+<span class="finger-label">Left Thumb</span>
+<span class="finger-check"><i class="fas fa-check-circle"></i> Captured</span>
+</div>
+<div class="finger-box" id="fingerRight">
+<i class="fas fa-hand-point-up"></i>
+<span class="finger-label">Right Thumb</span>
+<span class="finger-check"><i class="fas fa-check-circle"></i> Captured</span>
+</div>
+</div>
+<div class="scanner-area" id="scannerArea">
+<div class="scanner-ring">
+<div class="scanner-ring-inner">
+<div class="scan-line"></div>
+<i class="fas fa-fingerprint"></i>
+<span>Tap to scan</span>
+</div>
+</div>
+</div>
+<div class="scan-status" id="scanStatus">Tap a thumb to begin scanning</div>
+</div>
+</div>
+<div class="nav-buttons">
+<button class="btn btn-back btn-back-step"><i class="fas fa-arrow-left"></i> Back</button>
+<button class="btn btn-primary" id="step3Submit"><i class="fas fa-check"></i> Save Record</button>
+</div>
+</div>
+
+</div>
+
+<div class="success-overlay" id="successOverlay">
+<div class="success-card">
+<div class="success-icon"><i class="fas fa-check-circle"></i></div>
+<h2>Registration Complete!</h2>
+<p>Child health record created successfully</p>
+<div class="child-id" id="successChildId">FOL-2026-0001</div>
+<p style="font-size:0.78rem;color:var(--text-light)">Record stored locally. Sync when online.</p>
+<button class="btn btn-primary" id="registerAnotherBtn" style="margin-top:12px"><i class="fas fa-plus"></i> Register Another</button>
+<button class="btn btn-back" id="goToFolioBtn" style="margin-top:8px"><i class="fas fa-search"></i> Go to Scanner</button>
+</div>
+</div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+
+<script>
+var currentStep = 1;
+var photoData = null;
+var fingerprints = {left: false, right: false};
+
+function showStep(step) {
+document.querySelectorAll('.app-screen').forEach(function(s) { s.classList.remove('active'); });
+document.getElementById('screen' + step).classList.add('active');
+currentStep = step;
+document.querySelectorAll('.step-dot').forEach(function(d) {
+var s = parseInt(d.getAttribute('data-step'));
+d.className = 'step-dot';
+if (s < step) d.classList.add('done');
+else if (s === step) d.classList.add('active');
+else d.classList.add('pending');
+});
+document.querySelectorAll('.step-line').forEach(function(l) {
+var s = parseInt(l.getAttribute('data-step'));
+l.className = 'step-line';
+if (s < step) l.classList.add('done');
+});
+window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+document.getElementById('step1Next').addEventListener('click', function() {
+var fields = ['childName','childGender','childDob','motherName','motherPhone','childCountry','childState','childLga','childWard'];
+var errors = [];
+fields.forEach(function(id) {
+var el = document.getElementById(id);
+if (!el || !el.value.trim()) errors.push(id);
+});
+document.querySelectorAll('#screen1 input,#screen1 select').forEach(function(el) { el.classList.remove('error'); });
+errors.forEach(function(id) {
+var el = document.getElementById(id);
+if (el) el.classList.add('error');
+});
+if (errors.length > 0) {
+var first = document.getElementById(errors[0]);
+if (first) { first.focus(); first.scrollIntoView({behavior:'smooth',block:'center'}); }
+return;
+}
+showStep(2);
+});
+
+document.querySelectorAll('.btn-back-step').forEach(function(btn) {
+btn.addEventListener('click', function() {
+if (currentStep > 1) showStep(currentStep - 1);
+});
+});
+
+document.getElementById('capturePhotoBtn').addEventListener('click', function() {
+document.getElementById('cameraInput').click();
+});
+
+document.getElementById('cameraInput').addEventListener('change', function(e) {
+var file = e.target.files[0];
+if (!file) return;
+var reader = new FileReader();
+reader.onload = function(ev) {
+photoData = ev.target.result;
+var img = document.getElementById('photoPreview');
+img.src = photoData;
+img.classList.add('show');
+document.getElementById('photoPlaceholder').style.display = 'none';
+document.getElementById('photoFrame').classList.add('has-photo');
+};
+reader.readAsDataURL(file);
+});
+
+document.getElementById('skipPhotoBtn').addEventListener('click', function() {
+photoData = null;
+showStep(3);
+});
+
+document.getElementById('step2Next').addEventListener('click', function() {
+showStep(3);
+});
+
+function simulateScan(side) {
+if (fingerprints[side]) return;
+var box = document.getElementById('finger' + (side === 'left' ? 'Left' : 'Right'));
+var status = document.getElementById('scanStatus');
+status.textContent = 'Scanning ' + side + ' thumb...';
+status.className = 'scan-status';
+setTimeout(function() {
+fingerprints[side] = true;
+box.classList.add('has-finger');
+status.textContent = (side.charAt(0).toUpperCase() + side.slice(1)) + ' thumb captured!';
+status.className = 'scan-status success';
+if (fingerprints.left && fingerprints.right) {
+status.textContent = 'Both thumbs captured! You can now save the record.';
+}
+}, 1500);
+}
+
+document.getElementById('fingerLeft').addEventListener('click', function() { simulateScan('left'); });
+document.getElementById('fingerRight').addEventListener('click', function() { simulateScan('right'); });
+document.getElementById('scannerArea').addEventListener('click', function() {
+if (!fingerprints.left) simulateScan('left');
+else if (!fingerprints.right) simulateScan('right');
+});
+
+function generateChildId() {
+var year = new Date().getFullYear();
+var count = JSON.parse(localStorage.getItem('folio_children') || '[]').length + 1;
+return 'FOL-' + year + '-' + String(count).padStart(4, '0');
+}
+
+document.getElementById('step3Submit').addEventListener('click', function() {
+if (!fingerprints.left || !fingerprints.right) {
+document.getElementById('scanStatus').textContent = 'Please scan both thumbs before saving.';
+document.getElementById('scanStatus').className = 'scan-status error';
+return;
+}
+var childData = {
+id: generateChildId(),
+name: document.getElementById('childName').value.trim(),
+gender: document.getElementById('childGender').value,
+dob: document.getElementById('childDob').value,
+motherName: document.getElementById('motherName').value.trim(),
+motherPhone: document.getElementById('motherPhone').value.trim(),
+fatherPhone: document.getElementById('fatherPhone').value.trim(),
+country: document.getElementById('childCountry').value,
+state: document.getElementById('childState').value,
+lga: document.getElementById('childLga').value.trim(),
+ward: document.getElementById('childWard').value.trim(),
+photo: photoData || null,
+fingerprints: {left: true, right: true},
+vaccines: [],
+registrationDate: new Date().toISOString(),
+lastUpdated: new Date().toISOString(),
+nextAppointment: null,
+vaccinesGiven: 0
+};
+var children = JSON.parse(localStorage.getItem('folio_children') || '[]');
+children.push(childData);
+localStorage.setItem('folio_children', JSON.stringify(children));
+document.getElementById('successChildId').textContent = childData.id;
+
+document.querySelectorAll('#screen1 input, #screen1 select').forEach(function(el) { if (el.type !== 'hidden') el.value = ''; });
+photoData = null;
+document.getElementById('photoPreview').src = '';
+document.getElementById('photoPreview').classList.remove('show');
+document.getElementById('photoPlaceholder').style.display = '';
+document.getElementById('photoFrame').classList.remove('has-photo');
+document.getElementById('cameraInput').value = '';
+fingerprints = {left: false, right: false};
+document.getElementById('fingerLeft').classList.remove('has-finger');
+document.getElementById('fingerRight').classList.remove('has-finger');
+document.getElementById('scanStatus').textContent = 'Tap a thumb to begin scanning';
+document.getElementById('scanStatus').className = 'scan-status';
+
+document.getElementById('successOverlay').classList.add('show');
+});
+
+document.getElementById('registerAnotherBtn').addEventListener('click', function() {
+document.getElementById('successOverlay').classList.remove('show');
+showStep(1);
+});
+
+document.getElementById('goToFolioBtn').addEventListener('click', function() {
+window.location.href = 'folio.html';
+});
+</script>
+</body>
+</html>
