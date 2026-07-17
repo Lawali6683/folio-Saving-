@@ -1,610 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Folio - Admin Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{
---primary:#0a6e5e;--primary-dark:#064d41;--primary-light:#1aa18b;
---secondary:#f4a261;--accent:#e76f51;--success:#00b894;
---dark:#1a1a2e;--text:#2d3436;--text-light:#636e72;
---bg:#f4f7f6;--white:#ffffff;
---gradient:linear-gradient(135deg,#0a6e5e 0%,#1aa18b 50%,#48c6a0 100%);
---shadow:0 20px 60px rgba(10,110,94,0.12);
---radius:20px;--radius-sm:12px;--radius-xs:8px;
---transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
-.container{max-width:1200px;margin:0 auto;padding:0 20px}
-
-.login-screen{position:fixed;inset:0;z-index:9999;background:var(--gradient);display:flex;align-items:center;justify-content:center;transition:var(--transition)}
-.login-screen.hide{opacity:0;pointer-events:none;transform:scale(1.1)}
-.login-card{background:var(--white);border-radius:var(--radius);padding:40px 32px;width:400px;max-width:92vw;box-shadow:0 40px 80px rgba(0,0,0,0.2);animation:fadeUp 0.6s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo .icon{width:64px;height:64px;background:var(--gradient);border-radius:18px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:1.8rem;font-weight:900;margin:0 auto 12px}
-.login-logo h2{font-size:1.4rem;font-weight:800;color:var(--dark)}
-.login-logo p{font-size:0.85rem;color:var(--text-light)}
-.form-group{margin-bottom:18px}
-.form-group label{display:block;font-weight:600;font-size:0.85rem;color:var(--text);margin-bottom:6px}
-.form-group .input-wrap{position:relative}
-.form-group .input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1rem}
-.form-group input{width:100%;padding:14px 14px 14px 44px;border:2px solid rgba(0,0,0,0.06);border-radius:var(--radius-sm);font-size:0.95rem;outline:none;transition:var(--transition);font-family:inherit;background:var(--bg)}
-.form-group input:focus{border-color:var(--primary);background:var(--white);box-shadow:0 0 0 4px rgba(10,110,94,0.08)}
-.form-group input.error{border-color:var(--accent)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:var(--radius-sm);font-weight:700;font-size:0.92rem;text-decoration:none;transition:var(--transition);cursor:pointer;border:none;font-family:inherit}
-.btn-primary{background:var(--gradient);color:var(--white);box-shadow:0 8px 30px rgba(10,110,94,0.25)}
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(10,110,94,0.35)}
-.btn-outline{background:transparent;color:var(--primary);border:2px solid var(--primary);width:auto}
-.btn-outline:hover{background:var(--primary);color:var(--white)}
-.login-error{display:none;background:rgba(231,111,81,0.08);color:var(--accent);padding:12px 16px;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:500;margin-bottom:16px;text-align:center}
-.app-header{background:var(--gradient);padding:12px 0;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(10,110,94,0.15)}
-.app-header .header-inner{display:flex;align-items:center;justify-content:space-between}
-.app-header .logo-small{display:flex;align-items:center;gap:8px;color:var(--white);font-weight:800;font-size:1rem;text-decoration:none}
-.app-header .logo-small .icon{width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem}
-.app-header .header-actions{display:flex;gap:6px}
-.app-header .header-actions a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 12px;border-radius:100px;background:rgba(255,255,255,0.1);transition:var(--transition);display:flex;align-items:center;gap:4px}
-.app-header .header-actions a:hover{background:rgba(255,255,255,0.2)}
-.main-content{padding:20px 0 80px}
-.admin-hero{text-align:center;padding:16px 0 24px}
-.admin-hero .hero-icon{width:72px;height:72px;background:rgba(10,110,94,0.06);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:2rem;color:var(--primary)}
-.admin-hero h2{font-size:1.5rem;font-weight:800;color:var(--dark)}
-.admin-hero p{font-size:0.88rem;color:var(--text-light)}
-.tab-nav{display:flex;gap:8px;margin-bottom:24px;background:var(--white);border-radius:var(--radius-sm);padding:6px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
-.tab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:var(--radius-xs);font-weight:600;font-size:0.85rem;cursor:pointer;transition:var(--transition);border:none;background:transparent;color:var(--text-light);font-family:inherit}
-.tab-btn i{font-size:0.95rem}
-.tab-btn.active{background:var(--gradient);color:var(--white);box-shadow:0 4px 15px rgba(10,110,94,0.15)}
-.tab-btn:hover:not(.active){background:rgba(0,0,0,0.03)}
-.tab-btn .badge{background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:100px;font-size:0.7rem;font-weight:700}
-.tab-btn.active .badge{background:rgba(255,255,255,0.2);color:var(--white)}
-.tab-content{display:none;animation:fadeIn 0.4s ease}
-.tab-content.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:var(--white);border-radius:var(--radius-sm);padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);transition:var(--transition)}
-.stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-.stat-card .s-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.2rem}
-.stat-card .s-icon.green{background:rgba(10,110,94,0.08);color:var(--primary)}
-.stat-card .s-icon.orange{background:rgba(244,162,97,0.1);color:var(--secondary)}
-.stat-card .s-icon.red{background:rgba(231,111,81,0.08);color:var(--accent)}
-.stat-card .s-icon.blue{background:rgba(10,110,94,0.06);color:var(--primary-light)}
-.stat-card .num{font-size:1.8rem;font-weight:900;color:var(--dark)}
-.stat-card .label{font-size:0.78rem;color:var(--text-light);margin-top:2px;font-weight:500}
-.state-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.state-card{background:var(--white);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);transition:var(--transition)}
-.state-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-.state-card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,0.04);cursor:pointer;transition:var(--transition)}
-.state-card-header:hover{background:rgba(10,110,94,0.02)}
-.state-card-header h4{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
-.state-card-header .expand-icon{color:var(--text-light);transition:var(--transition);font-size:0.85rem}
-.state-card.expanded .expand-icon{transform:rotate(180deg)}
-.state-card-body{max-height:0;overflow:hidden;transition:max-height 0.5s ease}
-.state-card.expanded .state-card-body{max-height:2000px}
-.state-card-body-inner{padding:16px 20px}
-.state-mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.mini-stat{text-align:center;padding:10px;background:var(--bg);border-radius:var(--radius-xs)}
-.mini-stat .m-num{font-size:1.1rem;font-weight:800;color:var(--primary)}
-.mini-stat .m-label{font-size:0.65rem;color:var(--text-light);margin-top:2px}
-.lga-list{display:flex;flex-direction:column;gap:8px}
-.lga-item{padding:10px 14px;background:var(--bg);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:var(--transition)}
-.lga-item:hover{background:rgba(10,110,94,0.04)}
-.lga-item .lga-name{font-size:0.85rem;font-weight:600}
-.lga-item .lga-stats{display:flex;gap:12px;font-size:0.72rem}
-.lga-item .lga-stats span{display:flex;align-items:center;gap:4px}
-.lga-item .lga-stats .g{color:var(--primary)}
-.lga-item .lga-stats .o{color:var(--secondary)}
-.lga-item .lga-stats .r{color:var(--accent)}
-.ward-list{display:none;padding:8px 0 0 16px;flex-direction:column;gap:4px}
-.ward-list.show{display:flex}
-.ward-item{padding:8px 12px;background:rgba(0,0,0,0.02);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:space-between;font-size:0.8rem}
-.ward-item .w-stats{display:flex;gap:10px;font-size:0.7rem}
-.ward-item .w-stats .g{color:var(--primary)}
-.ward-item .w-stats .r{color:var(--accent)}
-.map-wrapper{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.04);margin-bottom:20px}
-#folioMap{height:520px;width:100%;z-index:1}
-.map-controls{display:flex;gap:10px;padding:12px 16px;background:var(--bg);border-top:1px solid rgba(0,0,0,0.04);align-items:center;justify-content:space-between;flex-wrap:wrap}
-.map-controls .search-box{display:flex;align-items:center;gap:8px;background:var(--white);padding:8px 14px;border-radius:100px;flex:1;max-width:300px;border:1px solid rgba(0,0,0,0.06)}
-.map-controls .search-box input{border:none;outline:none;font-size:0.82rem;font-family:inherit;flex:1;background:transparent}
-.map-controls .search-box i{color:var(--text-light);font-size:0.85rem}
-.map-controls .locate-btn{padding:8px 16px;border-radius:100px;border:none;background:var(--primary);color:var(--white);font-weight:600;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:var(--transition)}
-.map-controls .locate-btn:hover{background:var(--primary-dark)}
-.map-legend{display:flex;gap:20px;flex-wrap:wrap;padding:12px 16px;background:var(--white)}
-.map-legend span{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-light)}
-.map-legend .m-dot{width:14px;height:14px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.55rem;font-weight:700}
-.custom-marker{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;color:white;font-weight:800;font-size:0.7rem;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;transition:transform 0.2s}
-.custom-marker:hover{transform:scale(1.2);z-index:999}
-.leaflet-popup-content-wrapper{border-radius:12px;padding:4px}
-.leaflet-popup-content{margin:12px 16px;font-family:'Inter',sans-serif;font-size:0.85rem;line-height:1.6}
-.popup-title{font-weight:800;font-size:1rem;color:var(--dark);margin-bottom:6px}
-.popup-row{display:flex;justify-content:space-between;gap:16px;padding:2px 0;font-size:0.82rem}
-.popup-row .g{color:var(--success)}
-.popup-row .r{color:var(--accent)}
-.popup-row .o{color:var(--secondary)}
-.reports-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-.reports-header h3{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
-.reports-header h3 i{color:var(--primary)}
-.reports-header .r-count{background:rgba(10,110,94,0.06);color:var(--primary);padding:4px 12px;border-radius:100px;font-size:0.78rem;font-weight:600}
-.report-list{display:flex;flex-direction:column;gap:12px}
-.report-card{background:var(--white);border-radius:var(--radius-sm);padding:16px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:flex-start;gap:16px;transition:var(--transition)}
-.report-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
-.report-card .r-icon{width:40px;height:40px;background:rgba(10,110,94,0.06);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1rem;flex-shrink:0}
-.report-card .r-body{flex:1;min-width:0}
-.report-card .r-body .r-title{font-size:0.9rem;font-weight:600;color:var(--dark);margin-bottom:4px}
-.report-card .r-body .r-detail{font-size:0.82rem;color:var(--text-light);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.report-card .r-body .r-meta{font-size:0.72rem;color:var(--text-light);display:flex;gap:16px;flex-wrap:wrap}
-.report-card .r-body .r-meta span{display:flex;align-items:center;gap:4px}
-.report-card .r-actions{display:flex;gap:6px;flex-shrink:0}
-.report-card .r-actions button{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;font-size:0.85rem}
-.report-card .r-actions .view-btn{background:rgba(10,110,94,0.06);color:var(--primary)}
-.report-card .r-actions .view-btn:hover{background:var(--primary);color:var(--white)}
-.report-card .r-actions .del-btn{background:rgba(231,111,81,0.06);color:var(--accent)}
-.report-card .r-actions .del-btn:hover{background:var(--accent);color:var(--white)}
-.report-detail-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
-.report-detail-overlay.show{display:flex}
-.report-detail-card{background:var(--white);border-radius:var(--radius);padding:32px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto;animation:popIn 0.4s ease}
-@keyframes popIn{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.report-detail-card .rd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.04)}
-.report-detail-card .rd-header h3{font-size:1.15rem;font-weight:700}
-.report-detail-card .rd-close{width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,0.04);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:var(--transition)}
-.report-detail-card .rd-close:hover{background:rgba(0,0,0,0.08)}
-.report-detail-card .rd-field{margin-bottom:12px}
-.report-detail-card .rd-field .rd-label{font-size:0.72rem;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
-.report-detail-card .rd-field .rd-value{font-size:0.92rem;font-weight:500;margin-top:2px}
-.report-detail-card .rd-body{margin-top:16px;padding:16px;background:var(--bg);border-radius:var(--radius-xs);font-size:0.88rem;line-height:1.7;color:var(--text)}
-.empty-state{text-align:center;padding:60px 20px}
-.empty-state .e-icon{font-size:3rem;color:rgba(10,110,94,0.1);margin-bottom:12px}
-.empty-state h3{font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:6px}
-.empty-state p{font-size:0.85rem;color:var(--text-light)}
-@media(max-width:768px){
-.stats-grid{grid-template-columns:repeat(2,1fr)}
-.state-grid{grid-template-columns:1fr}
-.admin-hero h2{font-size:1.25rem}
-.app-header .header-inner{flex-direction:column;gap:8px}
-.app-header .header-actions{width:100%;justify-content:center}
-.tab-btn{padding:10px 8px;font-size:0.78rem}
-.tab-btn span{display:none}
-#folioMap{height:380px}
-}
-@media(max-width:480px){
-.stats-grid{grid-template-columns:1fr 1fr;gap:10px}
-.stat-card{padding:14px 10px}
-.stat-card .num{font-size:1.3rem}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yara Folio | Menu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+        .container{width:100%;max-width:1100px;animation:fadeUp 0.7s ease-out}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+        .hero{text-align:center;margin-bottom:3.5rem}
+        .hero .logo{display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:1rem;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;font-size:1.6rem;font-weight:800;margin-bottom:1.2rem}
+        .hero h1{font-size:2.4rem;font-weight:800;letter-spacing:-0.04em;color:#0f172a;margin-bottom:0.5rem}
+        .hero p{font-size:1rem;color:#64748b;max-width:520px;margin:0 auto;line-height:1.6}
+        .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+        .menu-card{background:#fff;border-radius:2rem;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);cursor:pointer;position:relative;text-decoration:none;color:inherit;display:block}
+        .menu-card:hover{transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,0,0,0.15)}
+        .menu-card:active{transform:translateY(-2px)}
+        .card-visual{height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+        .card-visual .icon-wrap{width:80px;height:80px;border-radius:1.2rem;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;position:relative;z-index:2;transition:all 0.4s}
+        .menu-card:hover .icon-wrap{transform:scale(1.08) rotate(-2deg)}
+        .card-visual .bg-shape{position:absolute;inset:0;opacity:0.08;background:radial-gradient(circle at 30% 40%,currentColor,transparent 70%)}
+        .card-visual.purple{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#6366f1}
+        .card-visual.blue{background:linear-gradient(135deg,#0ea5e9,#3b82f6);color:#0ea5e9}
+        .card-visual.dark{background:linear-gradient(135deg,#0f172a,#334155);color:#334155}
+        .card-visual .num-badge{position:absolute;top:1.2rem;right:1.2rem;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);color:#fff;font-size:0.7rem;font-weight:700;padding:0.2rem 0.8rem;border-radius:2rem;letter-spacing:0.03em}
+        .card-body{padding:1.8rem 2rem 2rem}
+        .card-body .tag{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6366f1;margin-bottom:0.5rem;display:block}
+        .card-body h2{font-size:1.3rem;font-weight:700;color:#0f172a;margin-bottom:0.4rem;letter-spacing:-0.02em}
+        .card-body p{font-size:0.85rem;color:#64748b;line-height:1.6;margin-bottom:1.2rem}
+        .card-meta{display:flex;gap:1.2rem;font-size:0.75rem;color:#94a3b8}
+        .card-meta span{display:flex;align-items:center;gap:0.3rem}
+        .arrow-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#f1f5f9;color:#475569;transition:all 0.3s;font-size:1rem;margin-top:0.5rem}
+        .menu-card:hover .arrow-icon{background:#6366f1;color:#fff;transform:translateX(4px)}
+        .footer-bar{margin-top:3.5rem;text-align:center;padding:1.5rem;background:#fff;border-radius:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.05);display:flex;justify-content:center;align-items:center;gap:2rem;flex-wrap:wrap;font-size:0.8rem;color:#94a3b8}
+        .footer-bar .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:0.4rem}
+        .footer-bar .status{color:#16a34a;font-weight:600}
+        @media(max-width:900px){.menu-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto}}
+        @media(max-width:480px){.hero h1{font-size:1.8rem}.card-body{padding:1.5rem}}
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="hero">
+            <div class="logo">YF</div>
+            <h1>Yara Folio Suite</h1>
+            <p>Modern rule management platform — create, analyze, and monitor your YARA detection rules from a single dashboard.</p>
+        </div>
 
-<div class="login-screen" id="loginScreen">
-<div class="login-card">
-<div class="login-logo">
-<div class="icon">F</div>
-<h2>Folio: Saving & Protecting Lives</h2>
-<p>Admin Dashboard - Secure Access</p>
-</div>
-<div class="login-error" id="loginError">
-<i class="fas fa-exclamation-circle"></i> Invalid email or password. Please try again.
-</div>
-<div class="form-group">
-<label>Email Address</label>
-<div class="input-wrap">
-<i class="fas fa-envelope"></i>
-<input type="email" id="loginEmail" value="ubaidaaliyu@gmail.com" placeholder="Enter email">
-</div>
-</div>
-<div class="form-group">
-<label>Password</label>
-<div class="input-wrap">
-<i class="fas fa-lock"></i>
-<input type="password" id="loginPassword" value="ubaida@77" placeholder="Enter password">
-</div>
-</div>
-<button class="btn btn-primary" id="loginBtn">
-<i class="fas fa-arrow-right"></i> Sign In
-</button>
-</div>
-</div>
+        <div class="menu-grid">
 
-<div class="app-header">
-<div class="container header-inner">
-<a href="#" class="logo-small">
-<div class="icon">F</div>
-Folio Admin Dashboard
-</a>
-<div class="header-actions">
-<a href="folio.html"><i class="fas fa-search"></i> Scanner</a>
-<a href="file.html"><i class="fas fa-plus-circle"></i> New Child</a>
-<a href="index.html"><i class="fas fa-globe"></i> Public</a>
-</div>
-</div>
-</div>
+            <div class="menu-card" onclick="window.location.href='file.html'">
+                <div class="card-visual purple">
+                    <div class="bg-shape"></div>
+                    <div class="icon-wrap">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                    </div>
+                    <span class="num-badge">.yar</span>
+                </div>
+                <div class="card-body">
+                    <span class="tag">Create</span>
+                    <h2>Create Yara File</h2>
+                    <p>Compose and validate new YARA rules with live syntax checking, metadata fields, and string pattern builder.</p>
+                    <div class="card-meta">
+                        <span>Last saved: 17 Jul 2026</span>
+                        <span>Version 1.2</span>
+                    </div>
+                    <div class="arrow-icon">→</div>
+                </div>
+            </div>
 
-<div class="container main-content">
+            <div class="menu-card" onclick="window.location.href='folio.html'">
+                <div class="card-visual blue">
+                    <div class="bg-shape"></div>
+                    <div class="icon-wrap">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </div>
+                    <span class="num-badge">12 rules</span>
+                </div>
+                <div class="card-body">
+                    <span class="tag">Analyze</span>
+                    <h2>Tantance Yara</h2>
+                    <p>Run rule analysis against samples, view real-time match results, severity tags, and confidence scoring across all active rules.</p>
+                    <div class="card-meta">
+                        <span>47 matches</span>
+                        <span>3 alerts</span>
+                    </div>
+                    <div class="arrow-icon">→</div>
+                </div>
+            </div>
 
-<div class="admin-hero">
-<div class="hero-icon"><i class="fas fa-chart-simple"></i></div>
-<h2>National Immunization Dashboard</h2>
-<p>Real-time data on child registration and vaccination coverage across all 36 states + FCT</p>
-</div>
+            <div class="menu-card" onclick="window.location.href='info.html'">
+                <div class="card-visual dark">
+                    <div class="bg-shape"></div>
+                    <div class="icon-wrap">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    </div>
+                    <span class="num-badge">v2.1</span>
+                </div>
+                <div class="card-body">
+                    <span class="tag">Information</span>
+                    <h2>Information</h2>
+                    <p>View system status, engine version YARA 4.5.2, module configurations, cloud sync health, and performance metrics.</p>
+                    <div class="card-meta">
+                        <span>Engine: YARA 4.5.2</span>
+                        <span>Cloud connected</span>
+                    </div>
+                    <div class="arrow-icon">→</div>
+                </div>
+            </div>
 
-<div class="tab-nav">
-<button class="tab-btn active" data-tab="overview"><i class="fas fa-list"></i> <span>States</span> <span class="badge" id="overviewBadge">0</span></button>
-<button class="tab-btn" data-tab="map"><i class="fas fa-map"></i> <span>Map</span></button>
-<button class="tab-btn" data-tab="reports"><i class="fas fa-flag"></i> <span>Reports</span> <span class="badge" id="reportBadge">0</span></button>
-</div>
+        </div>
 
-<div class="tab-content active" id="tabOverview">
-<div class="stats-grid">
-<div class="stat-card">
-<div class="s-icon green"><i class="fas fa-child"></i></div>
-<div class="num" id="totalRegistered">0</div>
-<div class="label">Total Registered</div>
-</div>
-<div class="stat-card">
-<div class="s-icon blue"><i class="fas fa-syringe"></i></div>
-<div class="num" id="totalVaccinated">0</div>
-<div class="label">Completed (8/8)</div>
-</div>
-<div class="stat-card">
-<div class="s-icon orange"><i class="fas fa-clock"></i></div>
-<div class="num" id="totalPending">0</div>
-<div class="label">Partial</div>
-</div>
-<div class="stat-card">
-<div class="s-icon red"><i class="fas fa-exclamation-triangle"></i></div>
-<div class="num" id="totalZeroDose">0</div>
-<div class="label">Zero Dose</div>
-</div>
-</div>
-<div class="state-grid" id="stateGrid"></div>
-</div>
-
-<div class="tab-content" id="tabMap">
-<div class="map-wrapper">
-<div id="folioMap"></div>
-<div class="map-controls">
-<div class="search-box">
-<i class="fas fa-search"></i>
-<input type="text" id="mapSearch" placeholder="Search state...">
-</div>
-<button class="locate-btn" id="locateBtn"><i class="fas fa-crosshairs"></i> My Location</button>
-</div>
-<div class="map-legend">
-<span><span class="m-dot" style="background:#e76f51;font-size:0">&#x200B;</span> High</span>
-<span><span class="m-dot" style="background:#f4a261;font-size:0">&#x200B;</span> Medium</span>
-<span><span class="m-dot" style="background:#0a6e5e;font-size:0">&#x200B;</span> Low</span>
-<span><span class="m-dot" style="background:#b2bec3;font-size:0">&#x200B;</span> No Data</span>
-</div>
-</div>
-</div>
-
-<div class="tab-content" id="tabReports">
-<div class="reports-header">
-<h3><i class="fas fa-flag"></i> Community Reports</h3>
-<span class="r-count" id="reportCount">0 reports</span>
-</div>
-<div class="report-list" id="reportList"></div>
-</div>
-
-</div>
-
-<div class="report-detail-overlay" id="reportDetailOverlay">
-<div class="report-detail-card">
-<div class="rd-header">
-<h3 id="rdTitle">Report Details</h3>
-<button class="rd-close" id="rdClose">&times;</button>
-</div>
-<div class="rd-field"><div class="rd-label">Name</div><div class="rd-value" id="rdName">-</div></div>
-<div class="rd-field"><div class="rd-label">Phone</div><div class="rd-value" id="rdPhone">-</div></div>
-<div class="rd-field"><div class="rd-label">State / LGA</div><div class="rd-value" id="rdState">-</div></div>
-<div class="rd-field"><div class="rd-label">Issue Type</div><div class="rd-value" id="rdIssue">-</div></div>
-<div class="rd-field"><div class="rd-label">Date Submitted</div><div class="rd-value" id="rdDate">-</div></div>
-<div class="rd-field"><div class="rd-label">Details</div><div class="rd-body" id="rdBody">-</div></div>
-</div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>
-var VALID_EMAIL = 'ubaidaaliyu@gmail.com';
-var VALID_PASS = 'ubaida@77';
-
-document.getElementById('loginEmail').value = VALID_EMAIL;
-document.getElementById('loginPassword').value = VALID_PASS;
-
-document.getElementById('loginBtn').addEventListener('click', function() {
-var email = document.getElementById('loginEmail').value.trim();
-var pass = document.getElementById('loginPassword').value.trim();
-var error = document.getElementById('loginError');
-if (email === VALID_EMAIL && pass === VALID_PASS) {
-document.getElementById('loginScreen').classList.add('hide');
-error.style.display = 'none';
-loadAllData();
-} else {
-error.style.display = 'block';
-document.getElementById('loginEmail').classList.add('error');
-document.getElementById('loginPassword').classList.add('error');
-setTimeout(function() {
-document.getElementById('loginEmail').classList.remove('error');
-document.getElementById('loginPassword').classList.remove('error');
-}, 2000);
-}
-});
-
-document.getElementById('loginEmail').addEventListener('keydown', function(e) {
-if (e.key === 'Enter') document.getElementById('loginBtn').click();
-});
-document.getElementById('loginPassword').addEventListener('keydown', function(e) {
-if (e.key === 'Enter') document.getElementById('loginBtn').click();
-});
-
-var NIGERIA_STATES = {
-'Abia':[5.4541,7.5153],'Adamawa':[9.5130,12.3882],'Akwa Ibom':[4.9409,7.8412],
-'Anambra':[6.2183,6.9532],'Bauchi':[10.6228,10.0288],'Bayelsa':[4.7630,6.0289],
-'Benue':[7.3506,8.7773],'Borno':[12.1875,13.3080],'Cross River':[5.8672,8.5205],
-'Delta':[5.5273,6.1784],'Ebonyi':[6.1997,8.0349],'Edo':[6.6077,5.9723],
-'Ekiti':[7.7369,5.2738],'Enugu':[6.5536,7.4143],'FCT':[8.8311,7.1725],
-'Gombe':[10.3830,11.2066],'Imo':[5.5859,7.0670],'Jigawa':[12.3252,9.5103],
-'Kaduna':[10.3825,7.8533],'Kano':[11.8948,8.5364],'Katsina':[12.8646,7.6862],
-'Kebbi':[11.8303,4.5043],'Kogi':[7.7337,6.6979],'Kwara':[8.4970,4.5525],
-'Lagos':[6.5244,3.3792],'Nasarawa':[8.4997,7.7072],'Niger':[9.9305,5.5983],
-'Ogun':[7.0107,3.4034],'Ondo':[7.1505,5.0829],'Osun':[7.5629,4.5196],
-'Oyo':[8.1574,3.6147],'Plateau':[9.2182,9.5179],'Rivers':[4.9164,6.8330],
-'Sokoto':[13.0627,5.2432],'Taraba':[8.5654,11.3081],'Yobe':[12.5642,11.4791],
-'Zamfara':[12.1644,6.3892]
-};
-
-var allStates = Object.keys(NIGERIA_STATES);
-var mapInstance = null;
-var mapMarkers = [];
-
-function getChildren() {
-return JSON.parse(localStorage.getItem('folio_children') || '[]');
-}
-function getReports() {
-return JSON.parse(localStorage.getItem('folio_reports') || '[]');
-}
-
-function loadAllData() {
-loadOverview();
-loadReports();
-initMap();
-}
-
-function loadOverview() {
-var children = getChildren();
-var total = children.length;
-var vaccinated = 0, pending = 0, zeroDose = 0;
-var stateData = {};
-allStates.forEach(function(s) {
-stateData[s] = {total:0, vaccinated:0, pending:0, zeroDose:0, lgas:{}};
-});
-children.forEach(function(c) {
-var state = c.state || 'Other';
-if (!stateData[state]) stateData[state] = {total:0, vaccinated:0, pending:0, zeroDose:0, lgas:{}};
-stateData[state].total++;
-var vc = (c.vaccines || []).length;
-if (vc >= 8) vaccinated++, stateData[state].vaccinated++;
-else if (vc > 0) pending++, stateData[state].pending++;
-else zeroDose++, stateData[state].zeroDose++;
-var lga = c.lga || 'Unknown';
-if (!stateData[state].lgas[lga]) stateData[state].lgas[lga] = {total:0, vaccinated:0, pending:0, zeroDose:0, wards:{}};
-stateData[state].lgas[lga].total++;
-if (vc >= 8) stateData[state].lgas[lga].vaccinated++;
-else if (vc > 0) stateData[state].lgas[lga].pending++;
-else stateData[state].lgas[lga].zeroDose++;
-var ward = c.ward || 'Unknown';
-if (!stateData[state].lgas[lga].wards[ward]) stateData[state].lgas[lga].wards[ward] = {total:0, vaccinated:0, zeroDose:0};
-stateData[state].lgas[lga].wards[ward].total++;
-if (vc >= 8) stateData[state].lgas[lga].wards[ward].vaccinated++;
-else stateData[state].lgas[lga].wards[ward].zeroDose++;
-});
-document.getElementById('totalRegistered').textContent = total;
-document.getElementById('totalVaccinated').textContent = vaccinated;
-document.getElementById('totalPending').textContent = pending;
-document.getElementById('totalZeroDose').textContent = zeroDose;
-document.getElementById('overviewBadge').textContent = total;
-var grid = document.getElementById('stateGrid');
-grid.innerHTML = '';
-allStates.forEach(function(state) {
-var d = stateData[state] || {total:0, vaccinated:0, pending:0, zeroDose:0, lgas:{}};
-var lgaKeys = Object.keys(d.lgas);
-var card = document.createElement('div');
-card.className = 'state-card';
-card.setAttribute('data-state', state);
-var header = document.createElement('div');
-header.className = 'state-card-header';
-header.innerHTML = '<h4>' + state + '</h4><i class="fas fa-chevron-down expand-icon"></i>';
-header.addEventListener('click', function() { card.classList.toggle('expanded'); });
-card.appendChild(header);
-var body = document.createElement('div');
-body.className = 'state-card-body';
-var inner = document.createElement('div');
-inner.className = 'state-card-body-inner';
-inner.innerHTML = '<div class="state-mini-stats"><div class="mini-stat"><div class="m-num">'+d.total+'</div><div class="m-label">Registered</div></div><div class="mini-stat"><div class="m-num" style="color:var(--success)">'+d.vaccinated+'</div><div class="m-label">Completed</div></div><div class="mini-stat"><div class="m-num" style="color:var(--accent)">'+d.zeroDose+'</div><div class="m-label">Zero Dose</div></div></div>';
-if (lgaKeys.length > 0) {
-var ll = document.createElement('div');
-ll.className = 'lga-list';
-lgaKeys.forEach(function(lga) {
-var ld = d.lgas[lga];
-var wk = Object.keys(ld.wards);
-var li = document.createElement('div');
-li.className = 'lga-item';
-li.innerHTML = '<span class="lga-name">'+lga+'</span><div class="lga-stats"><span class="g"><i class="fas fa-check-circle"></i> '+ld.vaccinated+'</span><span class="o"><i class="fas fa-clock"></i> '+ld.pending+'</span><span class="r"><i class="fas fa-times-circle"></i> '+ld.zeroDose+'</span></div>';
-li.addEventListener('click', function(e) {
-e.stopPropagation();
-var wl = this.querySelector('.ward-list');
-if (wl) { wl.classList.toggle('show'); return; }
-if (wk.length > 0) {
-var wdiv = document.createElement('div');
-wdiv.className = 'ward-list show';
-wk.forEach(function(w) {
-var wd = ld.wards[w];
-wdiv.innerHTML += '<div class="ward-item"><span>'+w+'</span><div class="w-stats"><span class="g"><i class="fas fa-check-circle"></i> '+wd.vaccinated+'</span><span class="r"><i class="fas fa-times-circle"></i> '+wd.zeroDose+'</span></div></div>';
-});
-li.parentNode.insertBefore(wdiv, li.nextSibling);
-}
-});
-ll.appendChild(li);
-});
-inner.appendChild(ll);
-} else {
-inner.innerHTML += '<p style="font-size:0.8rem;color:var(--text-light);text-align:center;padding:12px">No children registered yet</p>';
-}
-body.appendChild(inner);
-card.appendChild(body);
-grid.appendChild(card);
-});
-updateMapMarkers(stateData);
-}
-
-function initMap() {
-mapInstance = L.map('folioMap', {
-center: [9.0820, 8.6753],
-zoom: 6.5,
-zoomControl: true
-});
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-attribution: '&copy; OpenStreetMap',
-maxZoom: 18
-}).addTo(mapInstance);
-document.getElementById('locateBtn').addEventListener('click', function() {
-if (navigator.geolocation) {
-navigator.geolocation.getCurrentPosition(function(pos) {
-mapInstance.setView([pos.coords.latitude, pos.coords.longitude], 12);
-L.circleMarker([pos.coords.latitude, pos.coords.longitude], {
-radius:8, color:'#e76f51', fillColor:'#e76f51', fillOpacity:0.4
-}).addTo(mapInstance).bindPopup('<b>Your Location</b>');
-});
-} else {
-alert('Geolocation not available');
-}
-});
-document.getElementById('mapSearch').addEventListener('input', function() {
-var q = this.value.toLowerCase().trim();
-if (!q) { mapInstance.setView([9.0820, 8.6753], 6.5); return; }
-allStates.forEach(function(s) {
-if (s.toLowerCase().includes(q)) {
-var c = NIGERIA_STATES[s];
-mapInstance.setView([c[0], c[1]], 8);
-}
-});
-});
-}
-
-function updateMapMarkers(stateData) {
-if (!mapInstance) return;
-mapMarkers.forEach(function(m) { mapInstance.removeLayer(m); });
-mapMarkers = [];
-allStates.forEach(function(state) {
-var coord = NIGERIA_STATES[state];
-if (!coord) return;
-var d = (stateData && stateData[state]) || {total:0, vaccinated:0, zeroDose:0};
-var total = d.total || 0;
-var vax = d.vaccinated || 0;
-var zd = d.zeroDose || 0;
-var pct = total > 0 ? Math.round((vax / total) * 100) : 0;
-var color = total === 0 ? '#b2bec3' : pct >= 60 ? '#e76f51' : pct >= 30 ? '#f4a261' : '#0a6e5e';
-var classes = ['custom-marker'];
-var markerHtml = '<div class="custom-marker" style="background:'+color+'">'+total+'</div>';
-var icon = L.divIcon({html: markerHtml, className: '', iconSize: [36,36], iconAnchor: [18,18]});
-var marker = L.marker(coord, {icon: icon}).addTo(mapInstance);
-marker.bindPopup(
-'<div class="popup-title">' + state + '</div>' +
-'<div class="popup-row"><span>Registered:</span><span><b>' + total + '</b></span></div>' +
-'<div class="popup-row"><span class="g">Completed:</span><span class="g"><b>' + vax + '</b></span></div>' +
-'<div class="popup-row"><span class="o">Partial:</span><span class="o"><b>' + (total - vax - zd) + '</b></span></div>' +
-'<div class="popup-row"><span class="r">Zero Dose:</span><span class="r"><b>' + zd + '</b></span></div>' +
-'<div class="popup-row"><span>Coverage:</span><span><b>' + pct + '%</b></span></div>',
-{maxWidth:220}
-);
-marker.on('click', function() {
-var card = document.querySelector('.state-card[data-state="'+state+'"]');
-if (card) {
-document.querySelector('.tab-btn[data-tab="overview"]').click();
-card.classList.add('expanded');
-card.scrollIntoView({behavior:'smooth',block:'center'});
-}
-});
-mapMarkers.push(marker);
-});
-}
-
-function loadReports() {
-var reports = getReports();
-document.getElementById('reportBadge').textContent = reports.length;
-document.getElementById('reportCount').textContent = reports.length + ' reports';
-var list = document.getElementById('reportList');
-list.innerHTML = '';
-if (reports.length === 0) {
-list.innerHTML = '<div class="empty-state"><div class="e-icon"><i class="fas fa-inbox"></i></div><h3>No Reports</h3><p>Community reports from the public portal will appear here.</p></div>';
-return;
-}
-reports.slice().reverse().forEach(function(r, i) {
-var idx = reports.length - 1 - i;
-var iconMap = {vaccine:'fa-truck',missing:'fa-file',awareness:'fa-bullhorn',stockout:'fa-box',support:'fa-hand-holding-heart',falsified:'fa-exclamation-triangle',outreach:'fa-people-arrows'};
-var icon = 'fa-flag';
-Object.keys(iconMap).forEach(function(k) {
-if ((r.issue||'').toLowerCase().includes(k)) icon = iconMap[k];
-});
-var date = r.timestamp ? new Date(r.timestamp).toLocaleDateString() : 'Unknown';
-var card = document.createElement('div');
-card.className = 'report-card';
-card.innerHTML = '<div class="r-icon"><i class="fas '+icon+'"></i></div><div class="r-body"><div class="r-title">'+(r.name||'Anonymous')+'</div><div class="r-detail">'+(r.issue||'General report')+' - '+((r.message||'').substring(0,80))+'</div><div class="r-meta"><span><i class="fas fa-map-marker-alt"></i> '+(r.state||'N/A')+'</span><span><i class="fas fa-calendar"></i> '+date+'</span></div></div><div class="r-actions"><button class="view-btn" data-idx="'+idx+'"><i class="fas fa-eye"></i></button><button class="del-btn" data-idx="'+idx+'"><i class="fas fa-trash"></i></button></div>';
-list.appendChild(card);
-});
-list.querySelectorAll('.view-btn').forEach(function(b) {
-b.addEventListener('click', function() { showReport(parseInt(this.getAttribute('data-idx'))); });
-});
-list.querySelectorAll('.del-btn').forEach(function(b) {
-b.addEventListener('click', function() { deleteReport(parseInt(this.getAttribute('data-idx'))); });
-});
-}
-
-function showReport(idx) {
-var r = getReports()[idx];
-if (!r) return;
-document.getElementById('rdTitle').textContent = 'Report from '+(r.name||'Anonymous');
-document.getElementById('rdName').textContent = r.name||'Anonymous';
-document.getElementById('rdPhone').textContent = r.phone||'N/A';
-document.getElementById('rdState').textContent = (r.state||'N/A')+' / '+(r.lga||'N/A');
-document.getElementById('rdIssue').textContent = r.issue||'General';
-document.getElementById('rdDate').textContent = r.timestamp ? new Date(r.timestamp).toLocaleString() : 'Unknown';
-document.getElementById('rdBody').textContent = r.message||'No additional details provided.';
-document.getElementById('reportDetailOverlay').classList.add('show');
-}
-
-document.getElementById('rdClose').addEventListener('click', function() {
-document.getElementById('reportDetailOverlay').classList.remove('show');
-});
-document.getElementById('reportDetailOverlay').addEventListener('click', function(e) {
-if (e.target === this) this.classList.remove('show');
-});
-
-function deleteReport(idx) {
-var r = getReports();
-if (idx < 0 || idx >= r.length) return;
-r.splice(idx, 1);
-localStorage.setItem('folio_reports', JSON.stringify(r));
-loadReports();
-}
-
-document.querySelectorAll('.tab-btn').forEach(function(btn) {
-btn.addEventListener('click', function() {
-document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-this.classList.add('active');
-document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-document.getElementById('tab'+this.getAttribute('data-tab').charAt(0).toUpperCase()+this.getAttribute('data-tab').slice(1)).classList.add('active');
-if (this.getAttribute('data-tab') === 'map' && mapInstance) {
-setTimeout(function() { mapInstance.invalidateSize(); }, 200);
-}
-});
-});
-
-window.loadAllData = loadAllData;
-</script>
+        <div class="footer-bar">
+            <span><span class="dot"></span>All systems <span class="status">operational</span></span>
+            <span>Folio v2.1.0</span>
+            <span>Last scan: 17 Jul 2026, 14:32</span>
+        </div>
+    </div>
 </body>
 </html>
