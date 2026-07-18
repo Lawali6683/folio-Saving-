@@ -801,222 +801,251 @@ var conversationHistory = [];
 var isProcessing = false;
 
 function openVideo(src) {
-var player = document.getElementById('videoPlayer');
-player.src = src;
-document.getElementById('videoModal').style.display = 'flex';
-document.body.style.overflow = 'hidden';
+  var player = document.getElementById('videoPlayer');
+  player.src = src;
+  document.getElementById('videoModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
 function closeVideo() {
-var player = document.getElementById('videoPlayer');
-player.pause();
-player.currentTime = 0;
-player.src = '';
-document.getElementById('videoModal').style.display = 'none';
-document.body.style.overflow = '';
+  var player = document.getElementById('videoPlayer');
+  player.pause();
+  player.currentTime = 0;
+  player.src = '';
+  document.getElementById('videoModal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-var navbar = document.getElementById('navbar');
-window.addEventListener('scroll', function() {
-navbar.classList.toggle('scrolled', window.scrollY > 50);
-});
+  var navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', function() {
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
+  });
 
-var hamburger = document.getElementById('hamburger');
-var navLinks = document.getElementById('navLinks');
-var closeMenu = document.getElementById('closeMenu');
-hamburger.addEventListener('click', function() { navLinks.classList.toggle('open'); });
-closeMenu.addEventListener('click', function() { navLinks.classList.remove('open'); });
-document.querySelectorAll('.nav-links a').forEach(function(link) {
-link.addEventListener('click', function() { navLinks.classList.remove('open'); });
-});
+  var hamburger = document.getElementById('hamburger');
+  var navLinks = document.getElementById('navLinks');
+  var closeMenu = document.getElementById('closeMenu');
 
-var langBtns = document.querySelectorAll('.lang-btn');
-langBtns.forEach(function(btn) {
-btn.addEventListener('click', function() {
-langBtns.forEach(function(b) { b.classList.remove('active'); });
-this.classList.add('active');
-showToast('Language switched to ' + this.textContent);
-});
-});
+  hamburger.addEventListener('click', function() { navLinks.classList.toggle('open'); });
+  closeMenu.addEventListener('click', function() { navLinks.classList.remove('open'); });
 
-var counterAnimated = false;
-function animateCounters() {
-var counters = document.querySelectorAll('.stat-item .num');
-counters.forEach(function(counter) {
-var target = parseFloat(counter.getAttribute('data-target'));
-var current = 0;
-var increment = target / 60;
-var isDecimal = target % 1 !== 0;
-var update = setInterval(function() {
-current += increment;
-if (current >= target) {
-counter.textContent = isDecimal ? target.toFixed(1) + 'M' : Math.round(target) + '%';
-clearInterval(update);
-return;
-}
-counter.textContent = isDecimal ? current.toFixed(1) + 'M' : Math.round(current) + '%';
-}, 30);
-});
-}
-window.addEventListener('scroll', function() {
-var statsBanner = document.querySelector('.stats-banner');
-if (!counterAnimated && statsBanner.getBoundingClientRect().top < window.innerHeight) {
-animateCounters();
-counterAnimated = true;
-}
-});
+  document.querySelectorAll('.nav-links a').forEach(function(link) {
+    link.addEventListener('click', function() { navLinks.classList.remove('open'); });
+  });
 
-document.getElementById('videoModal').addEventListener('click', function(e) {
-if (e.target === this) closeVideo();
-});
-document.addEventListener('keydown', function(e) {
-if (e.key === 'Escape' && document.getElementById('videoModal').style.display === 'flex') closeVideo();
-});
+  var langBtns = document.querySelectorAll('.lang-btn');
+  langBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      langBtns.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      showToast('Language switched to ' + this.textContent);
+    });
+  });
 
-var reportForm = document.getElementById('reportForm');
-reportForm.addEventListener('submit', function(e) {
-e.preventDefault();
-var formData = {
-name: document.getElementById('fullName').value,
-phone: document.getElementById('phoneNumber').value,
-state: document.getElementById('state').value,
-issue: document.getElementById('issueType').value,
-message: document.getElementById('message').value,
-timestamp: new Date().toISOString()
-};
-var reports = JSON.parse(localStorage.getItem('folio_reports') || '[]');
-reports.push(formData);
-localStorage.setItem('folio_reports', JSON.stringify(reports));
-reportForm.reset();
-showToast('Thank you! Your report has been submitted.');
-});
+  var counterAnimated = false;
+  function animateCounters() {
+    var counters = document.querySelectorAll('.stat-item .num');
+    counters.forEach(function(counter) {
+      var target = parseFloat(counter.getAttribute('data-target'));
+      var current = 0;
+      var increment = target / 60;
+      var isDecimal = target % 1 !== 0;
+      var update = setInterval(function() {
+        current += increment;
+        if (current >= target) {
+          counter.textContent = isDecimal ? target.toFixed(1) + 'M' : Math.round(target) + '%';
+          clearInterval(update);
+          return;
+        }
+        counter.textContent = isDecimal ? current.toFixed(1) + 'M' : Math.round(current) + '%';
+      }, 30);
+    });
+  }
 
-function showToast(msg) {
-var toast = document.getElementById('toast');
-var toastMsg = document.getElementById('toastMsg');
-toastMsg.textContent = msg;
-toast.classList.add('show');
-setTimeout(function() { toast.classList.remove('show'); }, 4000);
-}
+  window.addEventListener('scroll', function() {
+    var statsBanner = document.querySelector('.stats-banner');
+    if (statsBanner && !counterAnimated && statsBanner.getBoundingClientRect().top < window.innerHeight) {
+      animateCounters();
+      counterAnimated = true;
+    }
+  });
 
-var helpBtn = document.getElementById('helpBtn');
-var chatOverlay = document.getElementById('chatOverlay');
-var chatClose = document.getElementById('chatClose');
-var chatMessages = document.getElementById('chatMessages');
-var chatInput = document.getElementById('chatInput');
-var chatSend = document.getElementById('chatSend');
+  document.getElementById('videoModal').addEventListener('click', function(e) {
+    if (e.target === this) closeVideo();
+  });
 
-helpBtn.addEventListener('click', function() {
-chatOverlay.classList.add('active');
-document.body.style.overflow = 'hidden';
-chatInput.focus();
-});
-function closeChat() {
-chatOverlay.classList.remove('active');
-document.body.style.overflow = '';
-}
-chatClose.addEventListener('click', closeChat);
-chatOverlay.addEventListener('click', function(e) {
-if (e.target === chatOverlay) closeChat();
-});
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('videoModal').style.display === 'flex') closeVideo();
+  });
 
-function addMessage(text, isUser) {
-var div = document.createElement('div');
-div.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
-var now = new Date();
-var timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-div.textContent = text;
-var timeSpan = document.createElement('span');
-timeSpan.className = 'time';
-timeSpan.textContent = timeStr;
-div.appendChild(timeSpan);
-chatMessages.appendChild(div);
-chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+  var reportForm = document.getElementById('reportForm');
+  if (reportForm) {
+    reportForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var formData = {
+        name: document.getElementById('fullName').value,
+        phone: document.getElementById('phoneNumber').value,
+        state: document.getElementById('state').value,
+        issue: document.getElementById('issueType').value,
+        message: document.getElementById('message').value,
+        timestamp: new Date().toISOString()
+      };
+      var reports = JSON.parse(localStorage.getItem('folio_reports') || '[]');
+      reports.push(formData);
+      localStorage.setItem('folio_reports', JSON.stringify(reports));
+      reportForm.reset();
+      showToast('Thank you! Your report has been submitted.');
+    });
+  }
 
-function showTyping() {
-var div = document.createElement('div');
-div.className = 'typing-indicator';
-div.id = 'typingIndicator';
-var s1 = document.createElement('span');
-var s2 = document.createElement('span');
-var s3 = document.createElement('span');
-div.appendChild(s1); div.appendChild(s2); div.appendChild(s3);
-chatMessages.appendChild(div);
-chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+  function showToast(msg) {
+    var toast = document.getElementById('toast');
+    var toastMsg = document.getElementById('toastMsg');
+    if (toast && toastMsg) {
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 4000);
+    }
+  }
 
-function removeTyping() {
-var typing = document.getElementById('typingIndicator');
-if (typing) typing.remove();
-}
+  var helpBtn = document.getElementById('helpBtn');
+  var chatOverlay = document.getElementById('chatOverlay');
+  var chatClose = document.getElementById('chatClose');
+  var chatMessages = document.getElementById('chatMessages');
+  var chatInput = document.getElementById('chatInput');
+  var chatSend = document.getElementById('chatSend');
 
-function askAI(question) {
-if (isProcessing) return;
-isProcessing = true;
-showTyping();
-var activeLang = document.querySelector('.lang-btn.active');
-var lang = activeLang ? activeLang.getAttribute('data-lang') : 'EN';
-conversationHistory.push({role: 'user', content: question});
-fetch('https://propitpilot.pages.dev/api/folio', {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({
-prompt: question,
-language: lang,
-history: conversationHistory
-})
-})
-.then(function(res) {
-if (!res.ok) throw new Error('Network error');
-return res.json();
-})
-.then(function(data) {
-removeTyping();
-var responseText = data.response || data.answer || 'Thank you for your question!';
-addMessage(responseText, false);
-conversationHistory.push({role: 'assistant', content: responseText});
-isProcessing = false;
-})
-.catch(function() {
-removeTyping();
-addMessage('I apologize, I am having trouble connecting. Please try again later.', false);
-isProcessing = false;
-});
-setTimeout(function() {
-if (isProcessing) {
-removeTyping();
-addMessage('The request is taking longer than expected. Please try again.', false);
-isProcessing = false;
-}
-}, 25000);
-}
+  if (helpBtn) {
+    helpBtn.addEventListener('click', function() {
+      chatOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      chatInput.focus();
+    });
+  }
 
-chatSend.addEventListener('click', function() {
-var text = chatInput.value.trim();
-if (!text || isProcessing) return;
-addMessage(text, true);
-chatInput.value = '';
-askAI(text);
-});
+  function closeChat() {
+    chatOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
 
-chatInput.addEventListener('keydown', function(e) {
-if (e.key === 'Enter') {
-e.preventDefault();
-chatSend.click();
-}
-});
+  if (chatClose) chatClose.addEventListener('click', closeChat);
+  if (chatOverlay) {
+    chatOverlay.addEventListener('click', function(e) {
+      if (e.target === chatOverlay) closeChat();
+    });
+  }
 
-document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-anchor.addEventListener('click', function(e) {
-var href = this.getAttribute('href');
-if (href === '#') return;
-e.preventDefault();
-var target = document.querySelector(href);
-if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
-});
-});
+  function addMessage(text, isUser) {
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
+    var now = new Date();
+    var timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    div.textContent = text;
+    var timeSpan = document.createElement('span');
+    timeSpan.className = 'time';
+    timeSpan.textContent = timeStr;
+    div.appendChild(timeSpan);
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showTyping() {
+    var div = document.createElement('div');
+    div.className = 'typing-indicator';
+    div.id = 'typingIndicator';
+    var s1 = document.createElement('span');
+    var s2 = document.createElement('span');
+    var s3 = document.createElement('span');
+    div.appendChild(s1); div.appendChild(s2); div.appendChild(s3);
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function removeTyping() {
+    var typing = document.getElementById('typingIndicator');
+    if (typing) typing.remove();
+  }
+
+  function askAI(question) {
+    if (isProcessing) return;
+    isProcessing = true;
+    showTyping();
+
+    var activeLangBtn = document.querySelector('.lang-btn.active');
+    var lang = activeLangBtn ? activeLangBtn.getAttribute('data-lang') : 'EN';
+    
+    conversationHistory.push({role: 'user', content: question});
+
+    var requestData = {
+      password: "@haruna66",
+      prompt: question,
+      language: lang,
+      history: conversationHistory
+    };
+
+    fetch('https://propitpilot.pages.dev/aip/folio', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(requestData)
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Fetch failed');
+      return res.json();
+    })
+    .then(function(data) {
+      removeTyping();
+      if (data.error) {
+        addMessage('System Error: ' + data.error, false);
+      } else {
+        var responseText = data.response || data.text || 'Thank you for your question!';
+        addMessage(responseText, false);
+        conversationHistory.push({role: 'assistant', content: responseText});
+      }
+      isProcessing = false;
+    })
+    .catch(function() {
+      removeTyping();
+      addMessage('I apologize, I am having trouble connecting. Please try again later.', false);
+      isProcessing = false;
+    });
+
+    setTimeout(function() {
+      if (isProcessing) {
+        removeTyping();
+        addMessage('The request is taking longer than expected. Please try again.', false);
+        isProcessing = false;
+      }
+    }, 25000);
+  }
+
+  if (chatSend) {
+    chatSend.addEventListener('click', function() {
+      var text = chatInput.value.trim();
+      if (!text || isProcessing) return;
+      addMessage(text, true);
+      chatInput.value = '';
+      askAI(text);
+    });
+  }
+
+  if (chatInput) {
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        chatSend.click();
+      }
+    });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+    anchor.addEventListener('click', function(e) {
+      var href = this.getAttribute('href');
+      if (href === '#') return;
+      e.preventDefault();
+      var target = document.querySelector(href);
+      if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
 });
 </script>
 </body>
