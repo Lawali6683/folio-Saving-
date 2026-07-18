@@ -959,7 +959,7 @@ showTyping();
 var activeLang = document.querySelector('.lang-btn.active');
 var lang = activeLang ? activeLang.getAttribute('data-lang') : 'EN';
 conversationHistory.push({role: 'user', content: question});
-fetch('https://propitpilot.page.dev/api/folio', {
+fetch('https://propitpilot.pages.dev/api/folio', {
 method: 'POST',
 headers: {'Content-Type': 'application/json'},
 body: JSON.stringify({
