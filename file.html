@@ -104,6 +104,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .success-card h2{font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:6px}
 .success-card p{font-size:0.85rem;color:var(--text-light);margin-bottom:4px}
 .success-card .child-id{display:inline-block;background:var(--gradient);color:var(--white);padding:6px 16px;border-radius:100px;font-weight:700;font-size:0.8rem;margin:10px 0 16px}
+.duplicate-warning{background:#fefce8;border:2px solid #eab308;border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px;display:none}
+.duplicate-warning.show{display:flex;align-items:flex-start;gap:10px}
+.duplicate-warning i{color:#ca8a04;font-size:1.2rem;margin-top:2px}
+.duplicate-warning .dup-text{text-align:left}
+.duplicate-warning .dup-text h4{font-size:0.85rem;color:#854d0e;margin-bottom:2px}
+.duplicate-warning .dup-text p{font-size:0.78rem;color:#a16207;margin:0}
+@keyframes pulse-warn{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,0.4)}50%{box-shadow:0 0 0 12px rgba(234,179,8,0)}}
+.dup-pulse{animation:pulse-warn 1.5s ease 3}
 @media(max-width:480px){
 .form-grid{grid-template-columns:1fr}
 .finger-grid{grid-template-columns:1fr;max-width:200px}
@@ -141,6 +149,14 @@ Folio Worker Portal
 <div class="step-dot pending" data-step="2">2</div>
 <div class="step-line" data-step="2"></div>
 <div class="step-dot pending" data-step="3">3</div>
+</div>
+
+<div class="duplicate-warning" id="duplicateWarning">
+<i class="fas fa-exclamation-triangle"></i>
+<div class="dup-text">
+<h4 id="dupWarningTitle">Duplicate Fingerprint Detected!</h4>
+<p id="dupWarningText">This fingerprint matches an existing record. Please use the scanner instead.</p>
+</div>
 </div>
 
 <div class="app-screen active" id="screen1">
@@ -273,7 +289,30 @@ Folio Worker Portal
 <script>
 var currentStep = 1;
 var photoData = null;
-var fingerprints = {left: false, right: false};
+var fingerprints = {left: null, right: null};
+var scannedFingerprintData = {left: null, right: null};
+
+function generateFingerprintHash(side, seed) {
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+var result = '';
+var timestamp = Date.now();
+var combined = seed + '-' + timestamp + '-' + Math.random();
+for (var i = 0; i < 32; i++) {
+var index = (combined.charCodeAt(i % combined.length) + i * 7 + timestamp) % chars.length;
+result += chars.charAt(Math.abs(index));
+}
+return side + '-' + result;
+}
+
+function getFingerprintByHash(hash) {
+var children = JSON.parse(localStorage.getItem('folio_children') || '[]');
+for (var i = 0; i < children.length; i++) {
+var c = children[i];
+if (c.fingerprints && c.fingerprints.left === hash) return {child: c, finger: 'left'};
+if (c.fingerprints && c.fingerprints.right === hash) return {child: c, finger: 'right'};
+}
+return null;
+}
 
 function showStep(step) {
 document.querySelectorAll('.app-screen').forEach(function(s) { s.classList.remove('active'); });
@@ -349,24 +388,80 @@ showStep(3);
 });
 
 function simulateScan(side) {
-if (fingerprints[side]) return;
+var dupWarning = document.getElementById('duplicateWarning');
+var existingFingerprints = JSON.parse(localStorage.getItem('folio_fingerprint_index') || '[]');
+var seed = document.getElementById('childName').value.trim() || 'child-' + Date.now();
+var newHash = generateFingerprintHash(side, seed);
+
+for (var i = 0; i < existingFingerprints.length; i++) {
+if (existingFingerprints[i].hash === newHash) {
+newHash = generateFingerprintHash(side, seed + '-' + i + '-' + Math.random());
+break;
+}
+}
+
+var alreadyExists = false;
+for (var i = 0; i < existingFingerprints.length; i++) {
+var parts = existingFingerprints[i].hash.split('-');
+var existingSide = parts[0];
+if (existingSide === side) {
+var matchScore = 0;
+var existingParts = existingFingerprints[i].hash.split('');
+var newParts = newHash.split('');
+for (var j = 0; j < Math.min(existingParts.length, newParts.length); j++) {
+if (existingParts[j] === newParts[j]) matchScore++;
+}
+var matchPercent = (matchScore / Math.max(existingParts.length, newParts.length)) * 100;
+if (matchPercent > 75) {
+alreadyExists = true;
+var matchedChild = getFingerprintByHash(existingFingerprints[i].hash);
+break;
+}
+}
+}
+
 var box = document.getElementById('finger' + (side === 'left' ? 'Left' : 'Right'));
 var status = document.getElementById('scanStatus');
 status.textContent = 'Scanning ' + side + ' thumb...';
 status.className = 'scan-status';
+box.classList.remove('has-finger');
+dupWarning.classList.remove('show');
+
 setTimeout(function() {
-fingerprints[side] = true;
+if (alreadyExists) {
+status.textContent = 'Duplicate ' + side + ' thumb detected! This child is already registered.';
+status.className = 'scan-status error';
+dupWarning.classList.add('show');
+document.getElementById('dupWarningTitle').textContent = 'Duplicate ' + side.charAt(0).toUpperCase() + side.slice(1) + ' Fingerprint!';
+document.getElementById('dupWarningText').textContent = 'This fingerprint matches an existing record. Please use the scanner page to find the child instead of creating a duplicate.';
+dupWarning.classList.add('dup-pulse');
+setTimeout(function() { dupWarning.classList.remove('dup-pulse'); }, 1500);
+fingerprints[side] = null;
+scannedFingerprintData[side] = null;
+return;
+}
+
+fingerprints[side] = newHash;
+scannedFingerprintData[side] = newHash;
 box.classList.add('has-finger');
-status.textContent = (side.charAt(0).toUpperCase() + side.slice(1)) + ' thumb captured!';
+status.textContent = (side.charAt(0).toUpperCase() + side.slice(1)) + ' thumb captured successfully!';
 status.className = 'scan-status success';
+
+existingFingerprints.push({hash: newHash, side: side, timestamp: Date.now()});
+localStorage.setItem('folio_fingerprint_index', JSON.stringify(existingFingerprints));
+
 if (fingerprints.left && fingerprints.right) {
 status.textContent = 'Both thumbs captured! You can now save the record.';
 }
-}, 1500);
+}, 1800);
 }
 
-document.getElementById('fingerLeft').addEventListener('click', function() { simulateScan('left'); });
-document.getElementById('fingerRight').addEventListener('click', function() { simulateScan('right'); });
+document.getElementById('fingerLeft').addEventListener('click', function() {
+if (!fingerprints.left) simulateScan('left');
+});
+document.getElementById('fingerRight').addEventListener('click', function() {
+if (!fingerprints.right) simulateScan('right');
+});
 document.getElementById('scannerArea').addEventListener('click', function() {
 if (!fingerprints.left) simulateScan('left');
 else if (!fingerprints.right) simulateScan('right');
@@ -374,16 +469,28 @@ else if (!fingerprints.right) simulateScan('right');
 
 function generateChildId() {
 var year = new Date().getFullYear();
-var count = JSON.parse(localStorage.getItem('folio_children') || '[]').length + 1;
-return 'FOL-' + year + '-' + String(count).padStart(4, '0');
+var children = JSON.parse(localStorage.getItem('folio_children') || '[]');
+var usedIds = {};
+for (var i = 0; i < children.length; i++) {
+usedIds[children[i].id] = true;
+}
+var counter = 1;
+var id;
+do {
+id = 'FOL-' + year + '-' + String(counter).padStart(4, '0');
+counter++;
+} while (usedIds[id]);
+return id;
 }
 
 document.getElementById('step3Submit').addEventListener('click', function() {
+var status = document.getElementById('scanStatus');
 if (!fingerprints.left || !fingerprints.right) {
-document.getElementById('scanStatus').textContent = 'Please scan both thumbs before saving.';
-document.getElementById('scanStatus').className = 'scan-status error';
+status.textContent = 'Please scan both thumbs before saving.';
+status.className = 'scan-status error';
 return;
 }
+
 var childData = {
 id: generateChildId(),
 name: document.getElementById('childName').value.trim(),
@@ -397,16 +504,26 @@ state: document.getElementById('childState').value,
 lga: document.getElementById('childLga').value.trim(),
 ward: document.getElementById('childWard').value.trim(),
 photo: photoData || null,
-fingerprints: {left: true, right: true},
+fingerprints: {
+left: fingerprints.left,
+right: fingerprints.right
+},
 vaccines: [],
 registrationDate: new Date().toISOString(),
 lastUpdated: new Date().toISOString(),
 nextAppointment: null,
 vaccinesGiven: 0
 };
+
 var children = JSON.parse(localStorage.getItem('folio_children') || '[]');
 children.push(childData);
 localStorage.setItem('folio_children', JSON.stringify(children));
+
+var fingerprintIndex = JSON.parse(localStorage.getItem('folio_fingerprint_index') || '[]');
+fingerprintIndex.push({hash: fingerprints.left, childId: childData.id, side: 'left', timestamp: Date.now()});
+fingerprintIndex.push({hash: fingerprints.right, childId: childData.id, side: 'right', timestamp: Date.now()});
+localStorage.setItem('folio_fingerprint_index', JSON.stringify(fingerprintIndex));
+
 document.getElementById('successChildId').textContent = childData.id;
 
 document.querySelectorAll('#screen1 input, #screen1 select').forEach(function(el) { if (el.type !== 'hidden') el.value = ''; });
@@ -416,11 +533,13 @@ document.getElementById('photoPreview').classList.remove('show');
 document.getElementById('photoPlaceholder').style.display = '';
 document.getElementById('photoFrame').classList.remove('has-photo');
 document.getElementById('cameraInput').value = '';
-fingerprints = {left: false, right: false};
+fingerprints = {left: null, right: null};
+scannedFingerprintData = {left: null, right: null};
 document.getElementById('fingerLeft').classList.remove('has-finger');
 document.getElementById('fingerRight').classList.remove('has-finger');
 document.getElementById('scanStatus').textContent = 'Tap a thumb to begin scanning';
 document.getElementById('scanStatus').className = 'scan-status';
+document.getElementById('duplicateWarning').classList.remove('show');
 
 document.getElementById('successOverlay').classList.add('show');
 });
